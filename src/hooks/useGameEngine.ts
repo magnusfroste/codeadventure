@@ -73,36 +73,35 @@ export function useGameEngine(level: Level, character: CharacterType) {
 
   const moveCharacter = useCallback(
     (direction: Direction): { success: boolean; hitObstacle: boolean; reachedHome: boolean; collectedCoin: boolean } => {
-      let result = { success: false, hitObstacle: false, reachedHome: false, collectedCoin: false };
-
+      // Läs aktuell position synkront från state ref
+      let currentPos: Position;
       setGameState((prev) => {
-        const nextPos = getNextPosition(prev.characterPosition, direction);
-
-        if (!isValidMove(nextPos)) {
-          result = { success: false, hitObstacle: true, reachedHome: false, collectedCoin: false };
-          return prev;
-        }
-
-        const cell = level.grid[nextPos.y][nextPos.x];
-        const isHome = nextPos.x === level.homePosition.x && nextPos.y === level.homePosition.y;
-        const hasCoin = cell.hasCoin;
-
-        result = {
-          success: true,
-          hitObstacle: false,
-          reachedHome: isHome,
-          collectedCoin: hasCoin || false,
-        };
-
-        return {
-          ...prev,
-          characterPosition: nextPos,
-          collectedCoins: hasCoin ? prev.collectedCoins + 1 : prev.collectedCoins,
-          isComplete: isHome,
-        };
+        currentPos = prev.characterPosition;
+        return prev;
       });
 
-      return result;
+      // Beräkna nästa position synkront
+      const nextPos = getNextPosition(currentPos!, direction);
+
+      // Validera synkront FÖRST - returnera omedelbart om ogiltigt
+      if (!isValidMove(nextPos)) {
+        return { success: false, hitObstacle: true, reachedHome: false, collectedCoin: false };
+      }
+
+      // Beräkna resultat synkront
+      const cell = level.grid[nextPos.y][nextPos.x];
+      const isHome = nextPos.x === level.homePosition.x && nextPos.y === level.homePosition.y;
+      const hasCoin = cell.hasCoin || false;
+
+      // Uppdatera state EFTER att vi vet att draget är giltigt
+      setGameState((prev) => ({
+        ...prev,
+        characterPosition: nextPos,
+        collectedCoins: hasCoin ? prev.collectedCoins + 1 : prev.collectedCoins,
+        isComplete: isHome,
+      }));
+
+      return { success: true, hitObstacle: false, reachedHome: isHome, collectedCoin: hasCoin };
     },
     [level]
   );
