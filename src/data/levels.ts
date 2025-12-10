@@ -210,3 +210,10 @@ export const allLevels: Level[] = [
   level4, level5, level6,
   level7, level8, level9,
 ];
+
+// Validate all levels in development mode
+if (import.meta.env.DEV) {
+  import('@/utils/levelValidator').then(({ validateAllLevels }) => {
+    validateAllLevels(allLevels);
+  });
+}
