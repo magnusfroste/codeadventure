@@ -15,6 +15,7 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import { useGameProgress } from '@/hooks/useGameProgress';
 import { useScratchEngine } from '@/hooks/useScratchEngine';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { BlockPalette } from '@/components/scratch/BlockPalette';
 import { CodeWorkspace } from '@/components/scratch/CodeWorkspace';
 import { ScratchStage } from '@/components/scratch/ScratchStage';
@@ -22,16 +23,24 @@ import { ScratchControls } from '@/components/scratch/ScratchControls';
 import { CharacterSelector } from '@/components/game/CharacterSelector';
 import { DragOverlayBlock, NewBlockOverlay } from '@/components/scratch/CodeBlock';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { toast } from 'sonner';
 import { Block, BlockType, BLOCK_DEFINITIONS } from '@/types/scratch';
 
 export default function ScratchEditor() {
   const navigate = useNavigate();
   const { progress, selectCharacter } = useGameProgress();
+  const { playSound } = useSoundEffects();
   const [showCharacterSelect, setShowCharacterSelect] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeDragData, setActiveDragData] = useState<{ type: BlockType; fromPalette: boolean } | { block: Block } | null>(null);
+
+  const handleEngineSound = useCallback((sound: 'move' | 'jump' | 'start' | 'loop' | 'success' | 'error') => {
+    if (soundEnabled) {
+      playSound(sound);
+    }
+  }, [soundEnabled, playSound]);
 
   const {
     blocks,
@@ -43,13 +52,12 @@ export default function ScratchEditor() {
     updateBlockValue,
     addBlockToLoop,
     removeBlockFromLoop,
-    moveBlocks,
     clearBlocks,
     resetStage,
     runProgram,
     stopProgram,
     setBlocks,
-  } = useScratchEngine(progress.selectedCharacter);
+  } = useScratchEngine(progress.selectedCharacter, handleEngineSound);
 
   // Configure sensors for both mouse and touch
   const sensors = useSensors(
@@ -70,12 +78,16 @@ export default function ScratchEditor() {
     const { active } = event;
     setActiveId(active.id as string);
     
+    if (soundEnabled) {
+      playSound('pickup');
+    }
+    
     if (active.data.current?.fromPalette) {
       setActiveDragData({ type: active.data.current.type, fromPalette: true });
     } else if (active.data.current?.block) {
       setActiveDragData({ block: active.data.current.block });
     }
-  }, []);
+  }, [soundEnabled, playSound]);
 
   const handleDragOver = useCallback((event: DragOverEvent) => {
     // Visual feedback is handled by the droppable components
@@ -99,12 +111,18 @@ export default function ScratchEditor() {
       // Dropped on workspace
       if (over.id === 'workspace' || overData?.isWorkspace) {
         addBlock(blockType);
+        if (soundEnabled) {
+          playSound('drop');
+        }
         toast.success(`${BLOCK_DEFINITIONS[blockType].emoji} ${BLOCK_DEFINITIONS[blockType].label} tillagd!`);
       }
       // Dropped on a loop
       else if (overData?.isLoopDropZone) {
         const loopId = overData.loopId as string;
         addBlockToLoop(loopId, blockType);
+        if (soundEnabled) {
+          playSound('drop');
+        }
         toast.success(`Block tillagd i loopen!`);
       }
       return;
@@ -117,9 +135,11 @@ export default function ScratchEditor() {
       // Moving to a loop
       if (overData?.isLoopDropZone) {
         const loopId = overData.loopId as string;
-        // Remove from main list and add to loop
         removeBlock(activeBlock.id);
         addBlockToLoop(loopId, activeBlock.type);
+        if (soundEnabled) {
+          playSound('drop');
+        }
         return;
       }
 
@@ -131,10 +151,13 @@ export default function ScratchEditor() {
         if (oldIndex !== -1 && newIndex !== -1) {
           const newBlocks = arrayMove(blocks, oldIndex, newIndex);
           setBlocks(newBlocks);
+          if (soundEnabled) {
+            playSound('click');
+          }
         }
       }
     }
-  }, [blocks, addBlock, addBlockToLoop, removeBlock, setBlocks]);
+  }, [blocks, addBlock, addBlockToLoop, removeBlock, setBlocks, soundEnabled, playSound]);
 
   const handleRun = async () => {
     const result = await runProgram();
@@ -177,13 +200,24 @@ export default function ScratchEditor() {
               </div>
             </div>
 
-            <Button
-              onClick={() => setShowCharacterSelect(!showCharacterSelect)}
-              variant="outline"
-              className="rounded-xl"
-            >
-              Byt karaktär
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                variant="outline"
+                size="icon"
+                className="rounded-xl"
+                title={soundEnabled ? 'Stäng av ljud' : 'Slå på ljud'}
+              >
+                {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+              </Button>
+              <Button
+                onClick={() => setShowCharacterSelect(!showCharacterSelect)}
+                variant="outline"
+                className="rounded-xl"
+              >
+                Byt karaktär
+              </Button>
+            </div>
           </div>
 
           {/* Character selector (collapsible) */}
@@ -194,6 +228,7 @@ export default function ScratchEditor() {
                 onSelect={(char) => {
                   selectCharacter(char);
                   setShowCharacterSelect(false);
+                  if (soundEnabled) playSound('click');
                 }}
               />
             </div>
@@ -211,10 +246,22 @@ export default function ScratchEditor() {
               <CodeWorkspace
                 blocks={blocks}
                 activeBlockId={activeBlockId}
-                onRemoveBlock={removeBlock}
-                onUpdateBlockValue={updateBlockValue}
-                onRemoveFromLoop={removeBlockFromLoop}
-                onClear={clearBlocks}
+                onRemoveBlock={(id) => {
+                  removeBlock(id);
+                  if (soundEnabled) playSound('click');
+                }}
+                onUpdateBlockValue={(id, value) => {
+                  updateBlockValue(id, value);
+                  if (soundEnabled) playSound('click');
+                }}
+                onRemoveFromLoop={(loopId, blockId) => {
+                  removeBlockFromLoop(loopId, blockId);
+                  if (soundEnabled) playSound('click');
+                }}
+                onClear={() => {
+                  clearBlocks();
+                  if (soundEnabled) playSound('click');
+                }}
                 isRunning={isRunning}
               />
             </div>
@@ -232,7 +279,10 @@ export default function ScratchEditor() {
               <ScratchControls
                 onRun={handleRun}
                 onStop={stopProgram}
-                onReset={resetStage}
+                onReset={() => {
+                  resetStage();
+                  if (soundEnabled) playSound('click');
+                }}
                 isRunning={isRunning}
                 canRun={hasStartBlock && blocks.length > 1}
               />

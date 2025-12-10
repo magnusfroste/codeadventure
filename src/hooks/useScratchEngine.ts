@@ -14,7 +14,9 @@ interface StageState {
   rotation: number;
 }
 
-export function useScratchEngine(character: CharacterType) {
+type SoundCallback = (sound: 'move' | 'jump' | 'start' | 'loop' | 'success' | 'error') => void;
+
+export function useScratchEngine(character: CharacterType, onSound?: SoundCallback) {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [stageState, setStageState] = useState<StageState>({
     x: STAGE_WIDTH / 2,
@@ -25,8 +27,14 @@ export function useScratchEngine(character: CharacterType) {
   const [isRunning, setIsRunning] = useState(false);
   const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
   const runningRef = useRef(false);
+  const soundCallbackRef = useRef(onSound);
+  soundCallbackRef.current = onSound;
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
+
+  const playSound = (sound: Parameters<SoundCallback>[0]) => {
+    soundCallbackRef.current?.(sound);
+  };
 
   const addBlock = useCallback((type: BlockType) => {
     const def = BLOCK_DEFINITIONS[type];
@@ -111,6 +119,7 @@ export function useScratchEngine(character: CharacterType) {
 
       switch (block.type) {
         case 'start':
+          playSound('start');
           break;
 
         case 'stop':
@@ -118,6 +127,7 @@ export function useScratchEngine(character: CharacterType) {
           return false;
 
         case 'move_up':
+          playSound('move');
           setStageState((prev) => {
             const clamped = clampPosition(prev.x, prev.y - STEP_SIZE);
             return { ...prev, ...clamped };
@@ -125,6 +135,7 @@ export function useScratchEngine(character: CharacterType) {
           break;
 
         case 'move_down':
+          playSound('move');
           setStageState((prev) => {
             const clamped = clampPosition(prev.x, prev.y + STEP_SIZE);
             return { ...prev, ...clamped };
@@ -132,6 +143,7 @@ export function useScratchEngine(character: CharacterType) {
           break;
 
         case 'move_left':
+          playSound('move');
           setStageState((prev) => {
             const clamped = clampPosition(prev.x - STEP_SIZE, prev.y);
             return { ...prev, ...clamped, rotation: -15 };
@@ -140,6 +152,7 @@ export function useScratchEngine(character: CharacterType) {
           break;
 
         case 'move_right':
+          playSound('move');
           setStageState((prev) => {
             const clamped = clampPosition(prev.x + STEP_SIZE, prev.y);
             return { ...prev, ...clamped, rotation: 15 };
@@ -148,6 +161,7 @@ export function useScratchEngine(character: CharacterType) {
           break;
 
         case 'jump':
+          playSound('jump');
           setStageState((prev) => ({ ...prev, isJumping: true }));
           await new Promise((r) => setTimeout(r, 300));
           setStageState((prev) => ({ ...prev, isJumping: false }));
@@ -157,6 +171,7 @@ export function useScratchEngine(character: CharacterType) {
           const repeatCount = block.value || 1;
           for (let i = 0; i < repeatCount; i++) {
             if (!runningRef.current) break;
+            playSound('loop');
             for (const child of block.children || []) {
               if (!runningRef.current) break;
               await executeBlock(child);
@@ -174,6 +189,7 @@ export function useScratchEngine(character: CharacterType) {
 
   const runProgram = useCallback(async () => {
     if (blocks.length === 0 || blocks[0].type !== 'start') {
+      playSound('error');
       return { success: false, error: 'Programmet måste börja med START!' };
     }
 
@@ -187,6 +203,10 @@ export function useScratchEngine(character: CharacterType) {
       if (!runningRef.current) break;
       const shouldContinue = await executeBlock(block);
       if (!shouldContinue) break;
+    }
+
+    if (runningRef.current) {
+      playSound('success');
     }
 
     setActiveBlockId(null);
