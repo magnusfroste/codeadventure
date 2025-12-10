@@ -67,23 +67,30 @@ export function validateLevel(level: Level): ValidationResult {
 }
 
 export function validateAllLevels(levels: Level[]): void {
-  console.log('🔍 Validerar alla nivåer...');
+  console.group('%c🔍 NIVÅVALIDERING', 'font-size: 14px; font-weight: bold; color: #3b82f6;');
   let allValid = true;
+  const results: string[] = [];
   
   for (const level of levels) {
     const result = validateLevel(level);
     if (!result.isValid) {
-      console.error(`❌ ${result.error}`);
+      console.error(`❌ OLÖSBAR: Nivå ${level.id} (${level.name}) - ${result.error}`);
+      results.push(`❌ Nivå ${level.id}: OLÖSBAR`);
       allValid = false;
     } else {
-      console.log(`✅ Nivå ${level.id} (${level.name}): OK - Optimal väg: ${result.path!.length - 1} steg`);
+      const pathLength = result.path!.length - 1;
+      const efficiency = pathLength === level.optimalMoves ? '⭐ PERFEKT' : pathLength < level.optimalMoves ? '🔧 KONTROLLERA optimalMoves' : '✅ OK';
+      console.log(`✅ Nivå ${level.id} (${level.name}): ${efficiency} - Kortaste väg: ${pathLength} steg (optimal: ${level.optimalMoves})`);
+      results.push(`✅ Nivå ${level.id}: ${pathLength} steg`);
     }
   }
   
+  console.groupEnd();
+  
   if (allValid) {
-    console.log('🎉 Alla nivåer är giltiga och går att lösa!');
+    console.log('%c🎉 Alla nivåer är giltiga!', 'font-size: 12px; font-weight: bold; color: #22c55e;');
   } else {
-    console.warn('⚠️ Några nivåer har problem och behöver justeras!');
+    console.error('%c⚠️ VARNING: Några nivåer är olösbara!', 'font-size: 14px; font-weight: bold; color: #ef4444;');
   }
 }
 
