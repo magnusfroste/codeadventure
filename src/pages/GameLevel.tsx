@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { allLevels } from '@/data/levels';
 import { useGameProgress } from '@/hooks/useGameProgress';
 import { useGameEngine } from '@/hooks/useGameEngine';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { GameGrid } from '@/components/game/GameGrid';
 import { ArrowControls } from '@/components/game/ArrowControls';
 import { CodeDisplay } from '@/components/game/CodeDisplay';
@@ -11,11 +12,14 @@ import { CelebrationModal } from '@/components/game/CelebrationModal';
 import { FailureModal } from '@/components/game/FailureModal';
 import { LevelHeader } from '@/components/game/LevelHeader';
 import { Direction } from '@/types/game';
+import { Button } from '@/components/ui/button';
+import { Volume2, VolumeX } from 'lucide-react';
 
 export default function GameLevel() {
   const { levelId } = useParams();
   const navigate = useNavigate();
   const { progress, completeLevel, getLevelStars, isLevelUnlocked } = useGameProgress();
+  const { playSound } = useSoundEffects();
 
   const levelIndex = parseInt(levelId || '1', 10) - 1;
   const level = allLevels[levelIndex];
@@ -23,6 +27,7 @@ export default function GameLevel() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [earnedStars, setEarnedStars] = useState(0);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const {
     gameState,
@@ -42,27 +47,32 @@ export default function GameLevel() {
 
   const handleDirectionGuided = useCallback(
     async (direction: Direction) => {
+      if (soundEnabled) playSound('move');
       const result = await executeMove(direction);
       if (result.reachedHome) {
         const stars = calculateStars(gameState.code.length + 1);
         setEarnedStars(stars);
         completeLevel(level.id, stars);
+        if (soundEnabled) playSound('celebrate');
         setShowCelebration(true);
       } else if (!result.success) {
+        if (soundEnabled) playSound('error');
         setShowFailure(true);
       }
     },
-    [executeMove, calculateStars, gameState.code.length, completeLevel, level?.id]
+    [executeMove, calculateStars, gameState.code.length, completeLevel, level?.id, soundEnabled, playSound]
   );
 
   const handleDirectionPlan = useCallback(
     (direction: Direction) => {
+      if (soundEnabled) playSound('click');
       addDirection(direction);
     },
-    [addDirection]
+    [addDirection, soundEnabled, playSound]
   );
 
   const handleRunCode = useCallback(async () => {
+    if (soundEnabled) playSound('start');
     const result = await runCode();
     
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -73,18 +83,19 @@ export default function GameLevel() {
     }
 
     if (result.success) {
-      // Check if we reached home after running
       const finalState = gameState;
       if (finalState.isComplete) {
         const stars = calculateStars(result.stepsUsed);
         setEarnedStars(stars);
         completeLevel(level.id, stars);
+        if (soundEnabled) playSound('celebrate');
         setShowCelebration(true);
       }
     } else {
+      if (soundEnabled) playSound('error');
       setShowFailure(true);
     }
-  }, [runCode, gameState, level, calculateStars, completeLevel]);
+  }, [runCode, gameState, level, calculateStars, completeLevel, soundEnabled, playSound]);
 
   // Monitor for completion
   useEffect(() => {
@@ -92,24 +103,27 @@ export default function GameLevel() {
       const stars = calculateStars(gameState.code.length);
       setEarnedStars(stars);
       completeLevel(level.id, stars);
+      if (soundEnabled) playSound('celebrate');
       setShowCelebration(true);
     }
-  }, [gameState.isComplete, gameState.code.length, calculateStars, completeLevel, level?.id, showCelebration]);
+  }, [gameState.isComplete, gameState.code.length, calculateStars, completeLevel, level?.id, showCelebration, soundEnabled, playSound]);
 
   const handleReset = useCallback(() => {
+    if (soundEnabled) playSound('click');
     resetGame();
     setShowCelebration(false);
     setShowFailure(false);
-  }, [resetGame]);
+  }, [resetGame, soundEnabled, playSound]);
 
   const handleNextLevel = useCallback(() => {
+    if (soundEnabled) playSound('success');
     setShowCelebration(false);
     if (levelIndex < allLevels.length - 1) {
       navigate(`/level/${level.id + 1}`);
     } else {
       navigate('/map');
     }
-  }, [navigate, level?.id, levelIndex]);
+  }, [navigate, level?.id, levelIndex, soundEnabled, playSound]);
 
   if (!level) return null;
 
@@ -119,11 +133,22 @@ export default function GameLevel() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 p-4 md:p-6">
       <div className="max-w-4xl mx-auto space-y-6">
-        <LevelHeader
-          level={level}
-          earnedStars={getLevelStars(level.id)}
-          onBack={() => navigate('/map')}
-        />
+        <div className="flex items-center justify-between">
+          <LevelHeader
+            level={level}
+            earnedStars={getLevelStars(level.id)}
+            onBack={() => navigate('/map')}
+          />
+          <Button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            variant="outline"
+            size="icon"
+            className="rounded-xl"
+            title={soundEnabled ? 'Stäng av ljud' : 'Slå på ljud'}
+          >
+            {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+          </Button>
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
           {/* Game Grid */}
@@ -154,7 +179,10 @@ export default function GameLevel() {
             <GameControls
               onRun={handleRunCode}
               onReset={handleReset}
-              onClear={clearCode}
+              onClear={() => {
+                if (soundEnabled) playSound('click');
+                clearCode();
+              }}
               canRun={gameState.code.length > 0 && !gameState.isComplete}
               canClear={gameState.code.length > 0}
               isRunning={gameState.isRunning}
