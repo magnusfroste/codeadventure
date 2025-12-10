@@ -1,7 +1,8 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Star, ArrowRight, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 
 interface CelebrationModalProps {
   open: boolean;
@@ -32,6 +33,9 @@ export function CelebrationModal({
   return (
     <Dialog open={open}>
       <DialogContent className="sm:max-w-md text-center bg-gradient-to-b from-card to-secondary/20 border-4 border-primary/30 rounded-3xl">
+        <VisuallyHidden.Root>
+          <DialogTitle>Nivå avklarad</DialogTitle>
+        </VisuallyHidden.Root>
         <div className="py-6 space-y-6">
           <div className="text-6xl celebration">🏆</div>
           
