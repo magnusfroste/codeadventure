@@ -5,7 +5,6 @@ import { CharacterType } from '@/types/game';
 const STEP_SIZE = 40;
 const STAGE_WIDTH = 400;
 const STAGE_HEIGHT = 300;
-const JUMP_HEIGHT = 60;
 const ANIMATION_DELAY = 400;
 
 interface StageState {
@@ -112,7 +111,6 @@ export function useScratchEngine(character: CharacterType) {
 
       switch (block.type) {
         case 'start':
-          // Just a marker, continue
           break;
 
         case 'stop':
@@ -175,7 +173,6 @@ export function useScratchEngine(character: CharacterType) {
   );
 
   const runProgram = useCallback(async () => {
-    // Check if program starts with START block
     if (blocks.length === 0 || blocks[0].type !== 'start') {
       return { success: false, error: 'Programmet måste börja med START!' };
     }
@@ -207,6 +204,7 @@ export function useScratchEngine(character: CharacterType) {
 
   return {
     blocks,
+    setBlocks,
     stageState,
     isRunning,
     activeBlockId,
