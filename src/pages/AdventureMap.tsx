@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { allLevels } from '@/data/levels';
 import { useGameProgress } from '@/hooks/useGameProgress';
 import { CharacterSelector } from '@/components/game/CharacterSelector';
-import { Star, Lock, Trophy } from 'lucide-react';
+import { Star, Lock, Trophy, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -12,6 +12,7 @@ export default function AdventureMap() {
 
   const totalStars = Object.values(progress.levelStars).reduce((a, b) => a + b, 0);
   const maxStars = allLevels.length * 3;
+  const hasCompletedPhase1 = totalStars >= 9; // At least 3 levels with 3 stars each
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-secondary/10 to-background p-4 md:p-6">
@@ -43,8 +44,36 @@ export default function AdventureMap() {
           />
         </div>
 
+        {/* Phase 2: Scratch Programming - Featured */}
+        <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl p-6 shadow-lg border-2 border-purple-500/30">
+          <div className="flex items-start gap-4 flex-wrap">
+            <div className="text-5xl">✨</div>
+            <div className="flex-1 min-w-[200px]">
+              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-purple-500" />
+                Fas 2: Blockprogrammering
+              </h2>
+              <p className="text-muted-foreground mt-1">
+                Skapa egna program med drag-and-drop block! Lär dig loopar och sekvenser.
+              </p>
+              <Button
+                onClick={() => navigate('/scratch')}
+                className="mt-4 bg-purple-500 hover:bg-purple-600 text-white rounded-xl"
+                size="lg"
+              >
+                <Sparkles className="w-5 h-5 mr-2" />
+                Öppna blockprogrammering
+              </Button>
+            </div>
+          </div>
+        </div>
+
         {/* Level Sections */}
         <div className="space-y-8">
+          <h2 className="text-2xl font-bold text-foreground text-center">
+            Fas 1: Pilkod-äventyret
+          </h2>
+
           {/* Guided Levels */}
           <LevelSection
             title="🌱 Nivå 1-3: Första stegen"

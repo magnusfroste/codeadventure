@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import AdventureMap from "./pages/AdventureMap";
 import GameLevel from "./pages/GameLevel";
+import ScratchEditor from "./pages/ScratchEditor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/map" element={<AdventureMap />} />
           <Route path="/level/:levelId" element={<GameLevel />} />
+          <Route path="/scratch" element={<ScratchEditor />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
