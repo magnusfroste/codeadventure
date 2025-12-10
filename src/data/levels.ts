@@ -20,9 +20,9 @@ export const level1: Level = {
   description: 'Hjälp karaktären hem! Tryck på pilarna.',
   gridSize: 3,
   grid: [
-    [P(), P(), H()],
+    [G(), P(), H()],
     [G(), P(), G()],
-    [P(), G(), G()],
+    [P(), P(), G()],
   ],
   startPosition: { x: 0, y: 2 },
   homePosition: { x: 2, y: 0 },
