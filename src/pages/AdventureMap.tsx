@@ -1,0 +1,177 @@
+import { useNavigate } from 'react-router-dom';
+import { allLevels } from '@/data/levels';
+import { useGameProgress } from '@/hooks/useGameProgress';
+import { CharacterSelector } from '@/components/game/CharacterSelector';
+import { Star, Lock, Trophy } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+
+export default function AdventureMap() {
+  const navigate = useNavigate();
+  const { progress, selectCharacter, getLevelStars, isLevelUnlocked } = useGameProgress();
+
+  const totalStars = Object.values(progress.levelStars).reduce((a, b) => a + b, 0);
+  const maxStars = allLevels.length * 3;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background via-secondary/10 to-background p-4 md:p-6">
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-primary">
+            🎮 Kodäventyret
+          </h1>
+          <p className="text-xl text-muted-foreground">
+            Lär dig programmera genom att guida karaktären hem!
+          </p>
+          
+          {/* Total Stars */}
+          <div className="inline-flex items-center gap-2 bg-card px-6 py-3 rounded-full shadow-md">
+            <Trophy className="w-6 h-6 text-game-coin" />
+            <span className="text-xl font-bold text-foreground">
+              {totalStars} / {maxStars}
+            </span>
+            <Star className="w-6 h-6 fill-game-coin text-game-coin" />
+          </div>
+        </div>
+
+        {/* Character Selector */}
+        <div className="bg-card rounded-2xl p-6 shadow-lg">
+          <CharacterSelector
+            selected={progress.selectedCharacter}
+            onSelect={selectCharacter}
+          />
+        </div>
+
+        {/* Level Sections */}
+        <div className="space-y-8">
+          {/* Guided Levels */}
+          <LevelSection
+            title="🌱 Nivå 1-3: Första stegen"
+            description="Guidad läge - lär dig grunderna!"
+            levels={allLevels.slice(0, 3)}
+            getLevelStars={getLevelStars}
+            isLevelUnlocked={isLevelUnlocked}
+            onSelectLevel={(id) => navigate(`/level/${id}`)}
+          />
+
+          {/* Plan Levels */}
+          <LevelSection
+            title="🧠 Nivå 4-6: Tänk först!"
+            description="Planera din kod innan du kör!"
+            levels={allLevels.slice(3, 6)}
+            getLevelStars={getLevelStars}
+            isLevelUnlocked={isLevelUnlocked}
+            onSelectLevel={(id) => navigate(`/level/${id}`)}
+          />
+
+          {/* Master Levels */}
+          <LevelSection
+            title="🏆 Nivå 7-9: Mästarbanor"
+            description="Hinder, mynt och utmaningar!"
+            levels={allLevels.slice(6, 9)}
+            getLevelStars={getLevelStars}
+            isLevelUnlocked={isLevelUnlocked}
+            onSelectLevel={(id) => navigate(`/level/${id}`)}
+          />
+        </div>
+
+        {/* Footer */}
+        <div className="text-center pt-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="text-muted-foreground"
+          >
+            ← Tillbaka till start
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface LevelSectionProps {
+  title: string;
+  description: string;
+  levels: typeof allLevels;
+  getLevelStars: (id: number) => number;
+  isLevelUnlocked: (id: number) => boolean;
+  onSelectLevel: (id: number) => void;
+}
+
+function LevelSection({
+  title,
+  description,
+  levels,
+  getLevelStars,
+  isLevelUnlocked,
+  onSelectLevel,
+}: LevelSectionProps) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-2xl font-bold text-foreground">{title}</h2>
+        <p className="text-muted-foreground">{description}</p>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {levels.map((level) => {
+          const unlocked = isLevelUnlocked(level.id);
+          const stars = getLevelStars(level.id);
+
+          return (
+            <button
+              key={level.id}
+              onClick={() => unlocked && onSelectLevel(level.id)}
+              disabled={!unlocked}
+              className={cn(
+                'relative p-6 rounded-2xl transition-all btn-bounce touch-target',
+                'border-2 text-left',
+                unlocked
+                  ? 'bg-card border-primary/30 hover:border-primary hover:shadow-lg cursor-pointer'
+                  : 'bg-muted border-border cursor-not-allowed opacity-60'
+              )}
+            >
+              {/* Lock icon for locked levels */}
+              {!unlocked && (
+                <div className="absolute top-3 right-3">
+                  <Lock className="w-6 h-6 text-muted-foreground" />
+                </div>
+              )}
+
+              {/* Level number */}
+              <div className={cn(
+                'w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold mb-3',
+                unlocked ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'
+              )}>
+                {level.id}
+              </div>
+
+              {/* Level info */}
+              <h3 className="text-lg font-bold text-foreground mb-1">
+                {level.name}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                {level.description}
+              </p>
+
+              {/* Stars */}
+              <div className="flex gap-1">
+                {[1, 2, 3].map((i) => (
+                  <Star
+                    key={i}
+                    className={cn(
+                      'w-5 h-5',
+                      i <= stars ? 'fill-game-coin text-game-coin' : 'text-muted'
+                    )}
+                  />
+                ))}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
