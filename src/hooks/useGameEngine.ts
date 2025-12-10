@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Direction, Position, Level, GameState, CharacterType } from '@/types/game';
 
 const MOVE_DELAY = 400;
@@ -15,9 +15,17 @@ export function useGameEngine(level: Level, character: CharacterType) {
   });
 
   const runningRef = useRef(false);
+  // Ref för att alltid ha tillgång till aktuell position synkront
+  const positionRef = useRef<Position>({ ...level.startPosition });
+
+  // Synka ref med state
+  useEffect(() => {
+    positionRef.current = gameState.characterPosition;
+  }, [gameState.characterPosition]);
 
   const resetGame = useCallback(() => {
     runningRef.current = false;
+    positionRef.current = { ...level.startPosition };
     setGameState({
       currentLevel: level.id,
       characterPosition: { ...level.startPosition },
@@ -73,17 +81,11 @@ export function useGameEngine(level: Level, character: CharacterType) {
 
   const moveCharacter = useCallback(
     (direction: Direction): { success: boolean; hitObstacle: boolean; reachedHome: boolean; collectedCoin: boolean } => {
-      // Läs aktuell position synkront från state ref
-      let currentPos: Position;
-      setGameState((prev) => {
-        currentPos = prev.characterPosition;
-        return prev;
-      });
+      // Läs aktuell position synkront från ref
+      const currentPos = positionRef.current;
+      const nextPos = getNextPosition(currentPos, direction);
 
-      // Beräkna nästa position synkront
-      const nextPos = getNextPosition(currentPos!, direction);
-
-      // Validera synkront FÖRST - returnera omedelbart om ogiltigt
+      // Validera synkront - returnera omedelbart om ogiltigt
       if (!isValidMove(nextPos)) {
         return { success: false, hitObstacle: true, reachedHome: false, collectedCoin: false };
       }
@@ -93,7 +95,10 @@ export function useGameEngine(level: Level, character: CharacterType) {
       const isHome = nextPos.x === level.homePosition.x && nextPos.y === level.homePosition.y;
       const hasCoin = cell.hasCoin || false;
 
-      // Uppdatera state EFTER att vi vet att draget är giltigt
+      // Uppdatera ref FÖRST (synkront) för efterföljande drag
+      positionRef.current = nextPos;
+
+      // Uppdatera state för rendering
       setGameState((prev) => ({
         ...prev,
         characterPosition: nextPos,
