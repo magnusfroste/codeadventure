@@ -10,6 +10,7 @@ interface CelebrationModalProps {
   levelName: string;
   onNextLevel: () => void;
   onRetry: () => void;
+  onClose: () => void;
   hasNextLevel: boolean;
 }
 
@@ -26,12 +27,13 @@ export function CelebrationModal({
   levelName,
   onNextLevel,
   onRetry,
+  onClose,
   hasNextLevel,
 }: CelebrationModalProps) {
   const message = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="sm:max-w-md text-center bg-gradient-to-b from-card to-secondary/20 border-4 border-primary/30 rounded-3xl">
         <VisuallyHidden.Root>
           <DialogTitle>Nivå avklarad</DialogTitle>

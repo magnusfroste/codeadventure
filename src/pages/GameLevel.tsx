@@ -252,6 +252,7 @@ export default function GameLevel() {
         levelName={level.name}
         onNextLevel={handleNextLevel}
         onRetry={handleReset}
+        onClose={() => setShowCelebration(false)}
         hasNextLevel={levelIndex < allLevels.length - 1}
       />
 
