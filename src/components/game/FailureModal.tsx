@@ -6,17 +6,18 @@ interface FailureModalProps {
   open: boolean;
   onRetry: () => void;
   onClose: () => void;
+  message?: string;
 }
 
-const encouragementMessages = [
+const defaultMessages = [
   'Nästan! Du kan det! 💪',
   'Försök igen! Du lär dig! 🌟',
   'Bra försök! Prova en annan väg! 🎯',
   'Ingen fara! Alla gör fel ibland! 😊',
 ];
 
-export function FailureModal({ open, onRetry, onClose }: FailureModalProps) {
-  const message = encouragementMessages[Math.floor(Math.random() * encouragementMessages.length)];
+export function FailureModal({ open, onRetry, onClose, message }: FailureModalProps) {
+  const displayMessage = message || defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -24,7 +25,7 @@ export function FailureModal({ open, onRetry, onClose }: FailureModalProps) {
         <div className="py-6 space-y-6">
           <div className="text-6xl">🤔</div>
           
-          <h2 className="text-2xl font-bold text-foreground">{message}</h2>
+          <h2 className="text-2xl font-bold text-foreground">{displayMessage}</h2>
           
           <div className="bg-muted p-4 rounded-xl flex items-start gap-3 text-left">
             <Lightbulb className="w-6 h-6 text-accent flex-shrink-0 mt-1" />

@@ -4,6 +4,7 @@ import { allLevels } from '@/data/levels';
 import { useGameProgress } from '@/hooks/useGameProgress';
 import { useGameEngine } from '@/hooks/useGameEngine';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { getHint } from '@/utils/levelValidator';
 import { GameGrid } from '@/components/game/GameGrid';
 import { ArrowControls } from '@/components/game/ArrowControls';
 import { CodeDisplay } from '@/components/game/CodeDisplay';
@@ -13,7 +14,7 @@ import { FailureModal } from '@/components/game/FailureModal';
 import { LevelHeader } from '@/components/game/LevelHeader';
 import { Direction } from '@/types/game';
 import { Button } from '@/components/ui/button';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, Lightbulb } from 'lucide-react';
 
 export default function GameLevel() {
   const { levelId } = useParams();
@@ -26,8 +27,10 @@ export default function GameLevel() {
 
   const [showCelebration, setShowCelebration] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
+  const [failureMessage, setFailureMessage] = useState<string>('');
   const [earnedStars, setEarnedStars] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showHint, setShowHint] = useState(false);
 
   const {
     gameState,
@@ -57,6 +60,7 @@ export default function GameLevel() {
         setShowCelebration(true);
       } else if (!result.success) {
         if (soundEnabled) playSound('error');
+        setFailureMessage('Oj! Där kan du inte gå. Prova en annan väg! 🤔');
         setShowFailure(true);
       }
     },
@@ -93,6 +97,7 @@ export default function GameLevel() {
       }
     } else {
       if (soundEnabled) playSound('error');
+      setFailureMessage('Hoppsan! Du kom inte hela vägen hem. Försök igen! 💪');
       setShowFailure(true);
     }
   }, [runCode, gameState, level, calculateStars, completeLevel, soundEnabled, playSound]);
@@ -113,7 +118,15 @@ export default function GameLevel() {
     resetGame();
     setShowCelebration(false);
     setShowFailure(false);
+    setShowHint(false);
   }, [resetGame, soundEnabled, playSound]);
+
+  const handleShowHint = useCallback(() => {
+    if (soundEnabled) playSound('click');
+    setShowHint(true);
+  }, [soundEnabled, playSound]);
+
+  const hint = level ? getHint(level) : null;
 
   const handleNextLevel = useCallback(() => {
     if (soundEnabled) playSound('success');
@@ -139,15 +152,28 @@ export default function GameLevel() {
             earnedStars={getLevelStars(level.id)}
             onBack={() => navigate('/map')}
           />
-          <Button
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            variant="outline"
-            size="icon"
-            className="rounded-xl"
-            title={soundEnabled ? 'Stäng av ljud' : 'Slå på ljud'}
-          >
-            {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-          </Button>
+          <div className="flex gap-2">
+            {hint && !showHint && (
+              <Button
+                onClick={handleShowHint}
+                variant="outline"
+                size="icon"
+                className="rounded-xl"
+                title="Visa ledtråd"
+              >
+                <Lightbulb className="w-5 h-5 text-accent" />
+              </Button>
+            )}
+            <Button
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              variant="outline"
+              size="icon"
+              className="rounded-xl"
+              title={soundEnabled ? 'Stäng av ljud' : 'Slå på ljud'}
+            >
+              {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
@@ -192,7 +218,12 @@ export default function GameLevel() {
         </div>
 
         {/* Mode-specific hint */}
-        <div className="text-center">
+        <div className="text-center space-y-2">
+          {showHint && hint && (
+            <div className="bg-accent/20 border-2 border-accent/40 rounded-xl p-3 inline-block">
+              <p className="text-foreground text-lg font-medium">{hint}</p>
+            </div>
+          )}
           {isGuided && (
             <p className="text-muted-foreground text-lg">
               💡 Tryck på pilarna för att guida {progress.selectedCharacter === 'mouse' ? 'musen' : 'karaktären'} hem!
@@ -219,6 +250,7 @@ export default function GameLevel() {
         open={showFailure}
         onRetry={handleReset}
         onClose={() => setShowFailure(false)}
+        message={failureMessage}
       />
     </div>
   );
