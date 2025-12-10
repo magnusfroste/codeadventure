@@ -1,14 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { allLevels } from '@/data/levels';
 import { useGameProgress } from '@/hooks/useGameProgress';
-import { CharacterSelector } from '@/components/game/CharacterSelector';
 import { Star, Lock, Trophy, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 export default function AdventureMap() {
   const navigate = useNavigate();
-  const { progress, selectCharacter, getLevelStars, isLevelUnlocked } = useGameProgress();
+  const { progress, getLevelStars, isLevelUnlocked } = useGameProgress();
 
   const totalStars = Object.values(progress.levelStars).reduce((a, b) => a + b, 0);
   const maxStars = allLevels.length * 3;
@@ -36,13 +35,6 @@ export default function AdventureMap() {
           </div>
         </div>
 
-        {/* Character Selector */}
-        <div className="bg-card rounded-2xl p-6 shadow-lg">
-          <CharacterSelector
-            selected={progress.selectedCharacter}
-            onSelect={selectCharacter}
-          />
-        </div>
 
         {/* Phase 2: Scratch Programming - Featured */}
         <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl p-6 shadow-lg border-2 border-purple-500/30">
