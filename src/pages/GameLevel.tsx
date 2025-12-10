@@ -32,6 +32,15 @@ export default function GameLevel() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showHint, setShowHint] = useState(false);
 
+  // Återställ lokala states när nivån ändras
+  useEffect(() => {
+    setShowCelebration(false);
+    setShowFailure(false);
+    setFailureMessage('');
+    setEarnedStars(0);
+    setShowHint(false);
+  }, [levelId]);
+
   const {
     gameState,
     resetGame,
