@@ -23,6 +23,20 @@ export function useGameEngine(level: Level, character: CharacterType) {
     positionRef.current = gameState.characterPosition;
   }, [gameState.characterPosition]);
 
+  // Återställ speltillståndet när nivån ändras
+  useEffect(() => {
+    positionRef.current = { ...level.startPosition };
+    setGameState({
+      currentLevel: level.id,
+      characterPosition: { ...level.startPosition },
+      code: [],
+      isRunning: false,
+      isComplete: false,
+      collectedCoins: 0,
+      selectedCharacter: character,
+    });
+  }, [level.id, character]);
+
   const resetGame = useCallback(() => {
     runningRef.current = false;
     positionRef.current = { ...level.startPosition };
