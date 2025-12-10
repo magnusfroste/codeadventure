@@ -35,35 +35,10 @@ export default function AdventureMap() {
           </div>
         </div>
 
-
-        {/* Phase 2: Scratch Programming - Featured */}
-        <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl p-6 shadow-lg border-2 border-purple-500/30">
-          <div className="flex items-start gap-4 flex-wrap">
-            <div className="text-5xl">✨</div>
-            <div className="flex-1 min-w-[200px]">
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-purple-500" />
-                Fas 2: Blockprogrammering
-              </h2>
-              <p className="text-muted-foreground mt-1">
-                Skapa egna program med drag-and-drop block! Lär dig loopar och sekvenser.
-              </p>
-              <Button
-                onClick={() => navigate('/scratch')}
-                className="mt-4 bg-purple-500 hover:bg-purple-600 text-white rounded-xl"
-                size="lg"
-              >
-                <Sparkles className="w-5 h-5 mr-2" />
-                Öppna blockprogrammering
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Level Sections */}
+        {/* Phase 1: Arrow Code Adventure - First */}
         <div className="space-y-8">
           <h2 className="text-2xl font-bold text-foreground text-center">
-            Fas 1: Pilkod-äventyret
+            🎯 Fas 1: Pilkod-äventyret
           </h2>
 
           {/* Guided Levels */}
@@ -96,6 +71,72 @@ export default function AdventureMap() {
             onSelectLevel={(id) => navigate(`/level/${id}`)}
           />
         </div>
+
+        {/* Phase 2: Scratch Programming - Locked until 9 stars */}
+        {hasCompletedPhase1 ? (
+          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl p-6 shadow-lg border-2 border-purple-500/30 animate-scale-in">
+            <div className="flex items-start gap-4 flex-wrap">
+              <div className="text-5xl">✨</div>
+              <div className="flex-1 min-w-[200px]">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-purple-500" />
+                  Fas 2: Blockprogrammering
+                  <span className="text-sm bg-green-500/20 text-green-600 px-2 py-1 rounded-full">UPPLÅST!</span>
+                </h2>
+                <p className="text-muted-foreground mt-1">
+                  Skapa egna program med drag-and-drop block! Lär dig loopar och sekvenser.
+                </p>
+                <Button
+                  onClick={() => navigate('/scratch')}
+                  className="mt-4 bg-purple-500 hover:bg-purple-600 text-white rounded-xl"
+                  size="lg"
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Öppna blockprogrammering
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-muted/50 rounded-2xl p-6 shadow-lg border-2 border-muted">
+            <div className="flex items-start gap-4 flex-wrap">
+              <div className="text-5xl opacity-50">🔒</div>
+              <div className="flex-1 min-w-[200px]">
+                <h2 className="text-2xl font-bold text-muted-foreground flex items-center gap-2">
+                  <Lock className="w-6 h-6" />
+                  Fas 2: Blockprogrammering
+                </h2>
+                <p className="text-muted-foreground mt-1">
+                  Skapa egna program med drag-and-drop block! Lär dig loopar och sekvenser.
+                </p>
+                
+                {/* Progress indicator */}
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Star className="w-4 h-4 fill-game-coin text-game-coin" />
+                    <span>Samla <strong className="text-foreground">{9 - totalStars}</strong> stjärnor till för att låsa upp!</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                    <div 
+                      className="bg-gradient-to-r from-game-coin to-yellow-400 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min((totalStars / 9) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-right">{totalStars}/9 stjärnor</p>
+                </div>
+
+                <Button
+                  disabled
+                  className="mt-4 bg-muted text-muted-foreground rounded-xl cursor-not-allowed"
+                  size="lg"
+                >
+                  <Lock className="w-5 h-5 mr-2" />
+                  Låst
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center pt-4">
