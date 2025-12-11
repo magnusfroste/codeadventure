@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Play, Code, Star } from 'lucide-react';
+import { Sparkles, Play, Code, Star, Github } from 'lucide-react';
 
 const characters = [
   { id: 'mouse', emoji: '🐭', name: 'Musen', color: 'bg-amber-200' },
@@ -96,6 +96,21 @@ const Index = () => {
             <p className="text-xs text-muted-foreground">Klara banor och få stjärnor</p>
           </div>
         </div>
+
+        {/* Footer with credits */}
+        <footer className="mt-8 text-center text-xs text-muted-foreground animate-fade-in" style={{ animationDelay: '0.8s' }}>
+          <p className="mb-1">Skapad av Magnus Froste</p>
+          <a 
+            href="https://github.com/magnusfroste" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+          >
+            <Github className="w-3 h-3" />
+            github.com/magnusfroste
+          </a>
+          <p className="mt-1 opacity-70">Open Source 💚</p>
+        </footer>
       </div>
     </div>
   );
