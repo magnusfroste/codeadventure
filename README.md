@@ -1,73 +1,60 @@
-# Welcome to your Lovable project
+# Code Adventure 💻
 
-## Project info
+A coding adventure game where you learn programming through play! Choose your character, explore an adventure map, and solve coding challenges in a Scratch-like visual editor.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**Published on [skolappar.com](https://www.skolappar.com) - Democratizing learning apps, built by vibe-coding parents who love helping their kids learn!**
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Character Selection**: Choose your hero (Mouse, Princess, Car, Cat, Robot)
+- **Adventure Map**: Explore a world of coding challenges
+- **Visual Coding**: Scratch-like drag-and-drop editor
+- **Game Levels**: Progressive difficulty with fun challenges
+- **Interactive Learning**: Learn programming concepts through play
+- **Responsive Design**: Works on desktop and mobile
 
-**Use Lovable**
+## Getting Started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js (v18 or higher)
+- npm or yarn
 
-**Use your preferred IDE**
+### Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+```bash
+npm install
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Run Locally
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Build for Production
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run build
+```
 
-**Use GitHub Codespaces**
+## How to Play
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Choose your character from the selection screen
+2. Start your adventure on the map
+3. Navigate to different levels
+4. Solve coding challenges using the visual editor
+5. Progress through increasingly difficult levels
+6. Learn programming concepts while having fun!
 
-## What technologies are used for this project?
+## Tech Stack
 
-This project is built with:
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **shadcn/ui** - Components
+- **Tailwind CSS** - Styling
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+MIT
