@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Star, ArrowRight, RotateCcw } from 'lucide-react';
@@ -30,7 +31,7 @@ export function CelebrationModal({
   onClose,
   hasNextLevel,
 }: CelebrationModalProps) {
-  const message = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+  const message = useMemo(() => celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)], [open]);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
