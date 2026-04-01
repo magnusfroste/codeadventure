@@ -63,9 +63,9 @@ export default function AdventureMap() {
 
           {/* Master Levels */}
           <LevelSection
-            title="🏆 Nivå 7-9: Mästarbanor"
+            title="🏆 Nivå 7-10: Mästarbanor"
             description="Hinder, mynt och utmaningar!"
-            levels={allLevels.slice(6, 9)}
+            levels={allLevels.slice(6, 10)}
             getLevelStars={getLevelStars}
             isLevelUnlocked={isLevelUnlocked}
             onSelectLevel={(id) => navigate(`/level/${id}`)}

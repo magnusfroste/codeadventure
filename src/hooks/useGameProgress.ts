@@ -15,14 +15,21 @@ export function useGameProgress() {
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
+    let loaded = defaultProgress;
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setProgress({ ...defaultProgress, ...parsed });
+        loaded = { ...defaultProgress, ...parsed };
       } catch {
-        setProgress(defaultProgress);
+        loaded = defaultProgress;
       }
     }
+    // Synka karaktärsval från startsidan
+    const selectedChar = localStorage.getItem('selectedCharacter');
+    if (selectedChar && ['mouse', 'princess', 'car', 'cat', 'robot'].includes(selectedChar)) {
+      loaded = { ...loaded, selectedCharacter: selectedChar as CharacterType };
+    }
+    setProgress(loaded);
   }, []);
 
   const saveProgress = useCallback((newProgress: GameProgress) => {
