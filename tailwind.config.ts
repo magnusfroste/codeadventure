@@ -118,6 +118,8 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         wiggle: "wiggle 0.3s ease-in-out infinite",
         pulse: "pulse 2s ease-in-out infinite",
+        shake: "shake 0.5s ease-in-out",
+        "confetti-fall": "confetti-fall 2s ease-in forwards",
       },
     },
   },
