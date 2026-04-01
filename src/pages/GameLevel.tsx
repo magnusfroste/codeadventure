@@ -251,7 +251,7 @@ export default function GameLevel() {
           character={progress.selectedCharacter}
         />
 
-        <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center justify-center">
           {/* Game Grid */}
           <div className="flex-shrink-0">
             <GameGrid
