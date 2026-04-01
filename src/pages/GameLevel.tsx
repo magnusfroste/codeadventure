@@ -213,7 +213,7 @@ export default function GameLevel() {
     <div className={`min-h-screen bg-gradient-to-b from-background to-secondary/20 p-4 md:p-6 ${shaking ? 'animate-shake' : ''}`}>
       <Confetti active={showConfetti} />
       
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-4 md:space-y-3">
         <div className="flex items-center justify-between">
           <LevelHeader
             level={level}
@@ -251,7 +251,7 @@ export default function GameLevel() {
           character={progress.selectedCharacter}
         />
 
-        <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center justify-center">
           {/* Game Grid */}
           <div className="flex-shrink-0">
             <GameGrid
