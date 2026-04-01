@@ -213,7 +213,7 @@ export default function GameLevel() {
     <div className={`min-h-screen bg-gradient-to-b from-background to-secondary/20 p-4 md:p-6 ${shaking ? 'animate-shake' : ''}`}>
       <Confetti active={showConfetti} />
       
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-4 md:space-y-3">
         <div className="flex items-center justify-between">
           <LevelHeader
             level={level}
