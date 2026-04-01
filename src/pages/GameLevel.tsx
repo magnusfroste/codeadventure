@@ -12,9 +12,11 @@ import { GameControls } from '@/components/game/GameControls';
 import { CelebrationModal } from '@/components/game/CelebrationModal';
 import { FailureModal } from '@/components/game/FailureModal';
 import { LevelHeader } from '@/components/game/LevelHeader';
+import { TutorialBubble } from '@/components/game/TutorialBubble';
+import { Confetti } from '@/components/game/Confetti';
 import { Direction } from '@/types/game';
 import { Button } from '@/components/ui/button';
-import { Volume2, VolumeX, Lightbulb } from 'lucide-react';
+import { Volume2, VolumeX, Lightbulb, Undo2 } from 'lucide-react';
 
 export default function GameLevel() {
   const { levelId } = useParams();
@@ -31,6 +33,8 @@ export default function GameLevel() {
   const [earnedStars, setEarnedStars] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showHint, setShowHint] = useState(false);
+  const [shaking, setShaking] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Återställ lokala states när nivån ändras
   useEffect(() => {
@@ -39,12 +43,15 @@ export default function GameLevel() {
     setFailureMessage('');
     setEarnedStars(0);
     setShowHint(false);
+    setShaking(false);
+    setShowConfetti(false);
   }, [levelId]);
 
   const {
     gameState,
     resetGame,
     addDirection,
+    removeLastDirection,
     clearCode,
     runCode,
     executeMove,
@@ -57,6 +64,16 @@ export default function GameLevel() {
     }
   }, [level, isLevelUnlocked, navigate]);
 
+  const triggerShake = useCallback(() => {
+    setShaking(true);
+    setTimeout(() => setShaking(false), 500);
+  }, []);
+
+  const triggerConfetti = useCallback(() => {
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000);
+  }, []);
+
   const handleDirectionGuided = useCallback(
     async (direction: Direction) => {
       if (soundEnabled) playSound('move');
@@ -66,14 +83,16 @@ export default function GameLevel() {
         setEarnedStars(stars);
         completeLevel(level.id, stars);
         if (soundEnabled) playSound('celebrate');
+        triggerConfetti();
         setShowCelebration(true);
       } else if (!result.success) {
         if (soundEnabled) playSound('error');
+        triggerShake();
         setFailureMessage('Oj! Där kan du inte gå. Prova en annan väg! 🤔');
         setShowFailure(true);
       }
     },
-    [executeMove, calculateStars, gameState.code.length, completeLevel, level?.id, soundEnabled, playSound]
+    [executeMove, calculateStars, gameState.code.length, completeLevel, level?.id, soundEnabled, playSound, triggerShake, triggerConfetti]
   );
 
   const handleDirectionPlan = useCallback(
@@ -83,6 +102,11 @@ export default function GameLevel() {
     },
     [addDirection, soundEnabled, playSound]
   );
+
+  const handleUndo = useCallback(() => {
+    if (soundEnabled) playSound('click');
+    removeLastDirection();
+  }, [removeLastDirection, soundEnabled, playSound]);
 
   const handleRunCode = useCallback(async () => {
     if (soundEnabled) playSound('start');
@@ -102,14 +126,16 @@ export default function GameLevel() {
         setEarnedStars(stars);
         completeLevel(level.id, stars);
         if (soundEnabled) playSound('celebrate');
+        triggerConfetti();
         setShowCelebration(true);
       }
     } else {
       if (soundEnabled) playSound('error');
+      triggerShake();
       setFailureMessage('Hoppsan! Du kom inte hela vägen hem. Försök igen! 💪');
       setShowFailure(true);
     }
-  }, [runCode, gameState, level, calculateStars, completeLevel, soundEnabled, playSound]);
+  }, [runCode, gameState, level, calculateStars, completeLevel, soundEnabled, playSound, triggerShake, triggerConfetti]);
 
   // Monitor for completion
   useEffect(() => {
@@ -118,9 +144,10 @@ export default function GameLevel() {
       setEarnedStars(stars);
       completeLevel(level.id, stars);
       if (soundEnabled) playSound('celebrate');
+      triggerConfetti();
       setShowCelebration(true);
     }
-  }, [gameState.isComplete, gameState.code.length, calculateStars, completeLevel, level?.id, showCelebration, soundEnabled, playSound]);
+  }, [gameState.isComplete, gameState.code.length, calculateStars, completeLevel, level?.id, showCelebration, soundEnabled, playSound, triggerConfetti]);
 
   const handleReset = useCallback(() => {
     if (soundEnabled) playSound('click');
@@ -147,13 +174,45 @@ export default function GameLevel() {
     }
   }, [navigate, level?.id, levelIndex, soundEnabled, playSound]);
 
+  // Keyboard support
+  const isGuided = level?.mode === 'guided';
+  const isPlanOrMaster = level?.mode === 'plan' || level?.mode === 'master';
+  const canMove = !gameState.isRunning && !gameState.isComplete && !showCelebration && !showFailure;
+
+  useEffect(() => {
+    if (!level) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!canMove) return;
+
+      const keyMap: Record<string, Direction> = {
+        ArrowUp: 'up',
+        ArrowDown: 'down',
+        ArrowLeft: 'left',
+        ArrowRight: 'right',
+      };
+
+      const direction = keyMap[e.key];
+      if (direction) {
+        e.preventDefault();
+        if (isGuided) {
+          handleDirectionGuided(direction);
+        } else {
+          handleDirectionPlan(direction);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [level, canMove, isGuided, handleDirectionGuided, handleDirectionPlan]);
+
   if (!level) return null;
 
-  const isGuided = level.mode === 'guided';
-  const isPlanOrMaster = level.mode === 'plan' || level.mode === 'master';
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 p-4 md:p-6">
+    <div className={`min-h-screen bg-gradient-to-b from-background to-secondary/20 p-4 md:p-6 ${shaking ? 'animate-shake' : ''}`}>
+      <Confetti active={showConfetti} />
+      
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <LevelHeader
@@ -185,6 +244,13 @@ export default function GameLevel() {
           </div>
         </div>
 
+        {/* Tutorial bubble */}
+        <TutorialBubble
+          levelId={level.id}
+          mode={level.mode}
+          character={progress.selectedCharacter}
+        />
+
         <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
           {/* Game Grid */}
           <div className="flex-shrink-0">
@@ -210,19 +276,33 @@ export default function GameLevel() {
               />
             </div>
 
-            {/* Game Controls */}
-            <GameControls
-              onRun={handleRunCode}
-              onReset={handleReset}
-              onClear={() => {
-                if (soundEnabled) playSound('click');
-                clearCode();
-              }}
-              canRun={gameState.code.length > 0 && !gameState.isComplete}
-              canClear={gameState.code.length > 0}
-              isRunning={gameState.isRunning}
-              showRunButton={isPlanOrMaster}
-            />
+            {/* Undo + Game Controls */}
+            <div className="space-y-3">
+              {isPlanOrMaster && gameState.code.length > 0 && !gameState.isRunning && (
+                <div className="flex justify-center">
+                  <Button
+                    onClick={handleUndo}
+                    variant="outline"
+                    className="text-base px-4 py-3 rounded-xl btn-bounce"
+                  >
+                    <Undo2 className="w-5 h-5 mr-2" />
+                    Ångra sista
+                  </Button>
+                </div>
+              )}
+              <GameControls
+                onRun={handleRunCode}
+                onReset={handleReset}
+                onClear={() => {
+                  if (soundEnabled) playSound('click');
+                  clearCode();
+                }}
+                canRun={gameState.code.length > 0 && !gameState.isComplete}
+                canClear={gameState.code.length > 0}
+                isRunning={gameState.isRunning}
+                showRunButton={isPlanOrMaster}
+              />
+            </div>
           </div>
         </div>
 
@@ -235,12 +315,12 @@ export default function GameLevel() {
           )}
           {isGuided && (
             <p className="text-muted-foreground text-lg">
-              💡 Tryck på pilarna för att guida {progress.selectedCharacter === 'mouse' ? 'musen' : 'karaktären'} hem!
+              ⌨️ Du kan också använda piltangenterna!
             </p>
           )}
           {isPlanOrMaster && (
             <p className="text-muted-foreground text-lg">
-              💡 Lägg till pilar för att skapa din kod, sedan tryck KÖR!
+              💡 Lägg till pilar (eller använd tangentbordet), sedan tryck KÖR!
             </p>
           )}
         </div>
