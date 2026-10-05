@@ -1,0 +1,14 @@
+# Kodäventyret
+
+> Lär dig koda genom lek – en gratis skolapp som introducerar programmering för de yngsta.
+
+Kodäventyret är ett kodspel där barn väljer en hjälte, utforskar en äventyrskarta och löser kodutmaningar i en Scratch-liknande blockeditor. Nivåerna blir gradvis svårare, från enkla uppdrag till blockprogrammering.
+
+Appen är gjord för yngre elever, föräldrar och lärare som vill introducera programmering på ett lekfullt sätt. Den är en del av skolappar.com – pedagogiska appar byggda av föräldrar för barn.
+
+## Länkar
+
+- [Kodäventyret](https://codekids.skolappar.com/): Startsida och val av hjälte.
+- [Äventyrskartan](https://codekids.skolappar.com/map): Alla nivåer.
+- [Blockeditorn](https://codekids.skolappar.com/scratch): Fri kodning med block.
+- [Skolappar](https://www.skolappar.com): Fler gratis skolappar.
