@@ -167,7 +167,7 @@ export function useScratchEngine(character: CharacterType, onSound?: SoundCallba
           setStageState((prev) => ({ ...prev, isJumping: false }));
           break;
 
-        case 'loop':
+        case 'loop': {
           const repeatCount = block.value || 1;
           for (let i = 0; i < repeatCount; i++) {
             if (!runningRef.current) break;
@@ -179,6 +179,7 @@ export function useScratchEngine(character: CharacterType, onSound?: SoundCallba
             }
           }
           break;
+        }
       }
 
       await new Promise((r) => setTimeout(r, ANIMATION_DELAY / 2));
