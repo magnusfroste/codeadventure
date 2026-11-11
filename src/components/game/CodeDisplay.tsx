@@ -6,6 +6,7 @@ interface CodeDisplayProps {
   orientation?: 'horizontal' | 'vertical';
   maxDisplay?: number;
   onRemove?: (index: number) => void;
+  activeIndex?: number;
 }
 
 const directionBg: Record<Direction, string> = {
@@ -15,7 +16,7 @@ const directionBg: Record<Direction, string> = {
   right: 'bg-arrow-right',
 };
 
-export function CodeDisplay({ code, orientation = 'horizontal', maxDisplay = 12, onRemove }: CodeDisplayProps) {
+export function CodeDisplay({ code, orientation = 'horizontal', maxDisplay = 12, onRemove, activeIndex = -1 }: CodeDisplayProps) {
   const displayCode = code.slice(-maxDisplay);
   const hasMore = code.length > maxDisplay;
 
@@ -41,23 +42,31 @@ export function CodeDisplay({ code, orientation = 'horizontal', maxDisplay = 12,
         {hasMore && (
           <span className="text-muted-foreground text-xl">...</span>
         )}
-        {displayCode.map((dir, index) => (
+        {displayCode.map((dir, index) => {
+          const realIndex = code.length - displayCode.length + index;
+          const isActive = realIndex === activeIndex;
+          const isDone = activeIndex >= 0 && realIndex < activeIndex;
+          return (
           <button
             type="button"
             key={index}
             disabled={!onRemove}
-            onClick={() => onRemove?.(code.length - displayCode.length + index)}
+            onClick={() => onRemove?.(realIndex)}
+            aria-current={isActive ? 'step' : undefined}
             aria-label={onRemove ? 'Ta bort pil' : undefined}
             className={cn(
-              'w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-white text-xl md:text-2xl font-bold animate-bounce-in',
+              'w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-white text-xl md:text-2xl font-bold transition-all duration-200',
               directionBg[dir],
-              onRemove && 'cursor-pointer hover:opacity-70 active:scale-90'
+              onRemove && 'cursor-pointer hover:opacity-70 active:scale-90',
+              isActive && 'scale-125 ring-4 ring-accent ring-offset-2 z-10',
+              isDone && 'opacity-40'
             )}
             style={{ animationDelay: `${index * 50}ms` }}
           >
             {DIRECTION_ARROWS[dir]}
           </button>
-        ))}
+          );
+        })}
       </div>
       {onRemove && (
         <p className="text-xs text-muted-foreground mt-2">Tryck på en pil för att ta bort den.</p>

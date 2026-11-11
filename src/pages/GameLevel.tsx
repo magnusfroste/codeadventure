@@ -16,7 +16,7 @@ import { TutorialBubble } from '@/components/game/TutorialBubble';
 import { Confetti } from '@/components/game/Confetti';
 import { Direction } from '@/types/game';
 import { Button } from '@/components/ui/button';
-import { Volume2, VolumeX, Lightbulb, Undo2 } from 'lucide-react';
+import { Volume2, VolumeX, Lightbulb, Undo2, Footprints } from 'lucide-react';
 
 export default function GameLevel() {
   const { levelId } = useParams();
@@ -58,6 +58,9 @@ export default function GameLevel() {
     goalIndex,
     goals,
     runCode,
+    stepCode,
+    activeStep,
+    nextStep,
     executeMove,
     calculateStars,
   } = useGameEngine(level, progress.selectedCharacter);
@@ -129,6 +132,22 @@ export default function GameLevel() {
     }
     setShowFailure(true);
   }, [runCode, goals.length, soundEnabled, playSound, triggerShake]);
+
+  const handleStep = useCallback(() => {
+    if (soundEnabled) playSound('move');
+    const r = stepCode();
+    if (r.reachedHome || !r.done) return;
+    if (soundEnabled) playSound('error');
+    triggerShake();
+    if (!r.success) {
+      setFailureMessage(`Pil nummer ${r.step} gick in i något. Laga den pilen! 🔧`);
+    } else {
+      setFailureMessage(goals.length > 0
+        ? 'Koden tog slut! Kom ihåg att hämta allt i uppdraget först. 🧺'
+        : 'Koden tog slut innan hemmet. Lägg till fler pilar! ➕');
+    }
+    setShowFailure(true);
+  }, [stepCode, goals.length, soundEnabled, playSound, triggerShake]);
 
   // Monitor for completion
   useEffect(() => {
@@ -272,6 +291,7 @@ export default function GameLevel() {
             {/* Code Display */}
             <CodeDisplay
               code={gameState.code}
+              activeIndex={activeStep}
               onRemove={isPlanOrMaster && !gameState.isRunning && !gameState.isComplete ? (i) => { if (soundEnabled) playSound('click'); removeDirectionAt(i); } : undefined}
             />
 
@@ -294,6 +314,19 @@ export default function GameLevel() {
                   >
                     <Undo2 className="w-5 h-5 mr-2" />
                     Ångra sista
+                  </Button>
+                </div>
+              )}
+              {isPlanOrMaster && gameState.code.length > 0 && !gameState.isComplete && (
+                <div className="flex justify-center">
+                  <Button
+                    onClick={handleStep}
+                    disabled={gameState.isRunning}
+                    variant="secondary"
+                    className="text-lg px-6 py-6 rounded-xl touch-target btn-bounce"
+                  >
+                    <Footprints className="w-6 h-6 mr-2" />
+                    {nextStep === 0 ? 'Ett steg i taget' : `Nästa steg (${nextStep + 1}/${gameState.code.length})`}
                   </Button>
                 </div>
               )}
