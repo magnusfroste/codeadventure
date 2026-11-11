@@ -1,0 +1,1 @@
+- Child progress is stored per local profile in localStorage (src/lib/profiles.ts); no login, because players are 4–8 years old and share devices.

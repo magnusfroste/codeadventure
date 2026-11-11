@@ -1,7 +1,12 @@
 import { useState, useCallback } from 'react';
 import { GameProgress, CharacterType } from '@/types/game';
 
-const STORAGE_KEY = 'kodaventyret-progress';
+import { getActiveProfile, progressKeyFor, updateProfileCharacter } from '@/lib/profiles';
+
+const storageKey = () => {
+  const p = getActiveProfile();
+  return p ? progressKeyFor(p.id) : 'kodaventyret-progress-gast';
+};
 
 const defaultProgress: GameProgress = {
   unlockedLevels: [1],
@@ -13,16 +18,14 @@ const defaultProgress: GameProgress = {
 function loadProgress(): GameProgress {
   let loaded = defaultProgress;
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(storageKey());
     if (saved) loaded = { ...defaultProgress, ...JSON.parse(saved) };
   } catch {
     loaded = defaultProgress;
   }
-  // Synka karaktärsval från startsidan
-  const selectedChar = localStorage.getItem('selectedCharacter');
-  if (selectedChar && ['mouse', 'princess', 'car', 'cat', 'robot'].includes(selectedChar)) {
-    loaded = { ...loaded, selectedCharacter: selectedChar as CharacterType };
-  }
+  // Figuren hör till barnets profil
+  const profile = getActiveProfile();
+  if (profile) loaded = { ...loaded, selectedCharacter: profile.character };
   return loaded;
 }
 
@@ -31,7 +34,7 @@ export function useGameProgress() {
 
   const saveProgress = useCallback((newProgress: GameProgress) => {
     setProgress(newProgress);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newProgress));
+    localStorage.setItem(storageKey(), JSON.stringify(newProgress));
   }, []);
 
   const completeLevel = useCallback((levelId: number, stars: number) => {
@@ -51,7 +54,7 @@ export function useGameProgress() {
         totalStars: prev.totalStars + starDiff,
       };
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newProgress));
+      localStorage.setItem(storageKey(), JSON.stringify(newProgress));
       return newProgress;
     });
   }, []);
@@ -59,7 +62,9 @@ export function useGameProgress() {
   const selectCharacter = useCallback((character: CharacterType) => {
     setProgress((prev) => {
       const newProgress = { ...prev, selectedCharacter: character };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newProgress));
+      const profile = getActiveProfile();
+      if (profile) updateProfileCharacter(profile.id, character);
+      localStorage.setItem(storageKey(), JSON.stringify(newProgress));
       return newProgress;
     });
   }, []);

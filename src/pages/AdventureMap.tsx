@@ -4,11 +4,14 @@ import { useGameProgress } from '@/hooks/useGameProgress';
 import { Star, Lock, Trophy, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { getActiveProfile } from '@/lib/profiles';
+import { CHARACTER_EMOJIS } from '@/types/game';
 
 export default function AdventureMap() {
   const navigate = useNavigate();
   const { progress, getLevelStars, isLevelUnlocked } = useGameProgress();
 
+  const player = getActiveProfile();
   const totalStars = Object.values(progress.levelStars).reduce((a, b) => a + b, 0);
   const maxStars = allLevels.length * 3;
   const hasCompletedPhase1 = totalStars >= 9; // At least 3 levels with 3 stars each
@@ -25,6 +28,17 @@ export default function AdventureMap() {
             Lär dig programmera genom att guida karaktären hem!
           </p>
           
+          {player && (
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-2xl font-bold text-foreground">
+                Hej {player.name}! {CHARACTER_EMOJIS[progress.selectedCharacter]}
+              </span>
+              <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate('/')}>
+                Byt spelare
+              </Button>
+            </div>
+          )}
+
           {/* Total Stars */}
           <div className="inline-flex items-center gap-2 bg-card px-6 py-3 rounded-full shadow-md">
             <Trophy className="w-6 h-6 text-game-coin" />

@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { CharacterType } from '@/types/game';
+import { ChildProfile, getProfiles, createProfile, setActiveProfile, deleteProfile, getProfileStars } from '@/lib/profiles';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Play, Code, Star, Github } from 'lucide-react';
+import { Sparkles, Play, Code, Star, Github, Plus, Trash2 } from 'lucide-react';
 
 const characters = [
   { id: 'mouse', emoji: '🐭', name: 'Musen', color: 'bg-amber-200' },
@@ -14,10 +16,27 @@ const characters = [
 const Index = () => {
   const navigate = useNavigate();
   const [selectedCharacter, setSelectedCharacter] = useState('mouse');
+  const [profiles, setProfiles] = useState<ChildProfile[]>(() => getProfiles());
+  const [creating, setCreating] = useState(profiles.length === 0);
+  const [name, setName] = useState('');
+  const [editMode, setEditMode] = useState(false);
 
   const handleStart = () => {
-    localStorage.setItem('selectedCharacter', selectedCharacter);
+    createProfile(name || `Spelare ${profiles.length + 1}`, selectedCharacter as CharacterType);
     navigate('/map');
+  };
+
+  const pickProfile = (id: string) => {
+    setActiveProfile(id);
+    navigate('/map');
+  };
+
+  const removeProfile = (p: ChildProfile) => {
+    if (!window.confirm(`Ta bort ${p.name} och alla framsteg?`)) return;
+    deleteProfile(p.id);
+    const list = getProfiles();
+    setProfiles(list);
+    if (list.length === 0) { setCreating(true); setEditMode(false); }
   };
 
   return (
@@ -42,8 +61,57 @@ const Index = () => {
           </p>
         </div>
 
+        {!creating ? (
+          <div className="bg-card/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border-2 border-border animate-fade-in space-y-4">
+            <h2 className="text-2xl font-bold text-foreground">Vem spelar? 👋</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {profiles.map((p) => (
+                <div key={p.id} className="relative">
+                  <button
+                    onClick={() => pickProfile(p.id)}
+                    className="w-full rounded-2xl bg-primary/10 border-2 border-primary/30 p-4 touch-target btn-bounce hover:bg-primary/20"
+                  >
+                    <div className="text-5xl mb-1">{characters.find((c) => c.id === p.character)?.emoji}</div>
+                    <div className="text-lg font-bold text-foreground truncate">{p.name}</div>
+                    <div className="text-sm text-muted-foreground">⭐ {getProfileStars(p.id)}</div>
+                  </button>
+                  {editMode && (
+                    <button
+                      onClick={() => removeProfile(p)}
+                      aria-label={`Ta bort ${p.name}`}
+                      className="absolute -top-2 -right-2 w-9 h-9 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                onClick={() => setCreating(true)}
+                className="rounded-2xl border-2 border-dashed border-border p-4 touch-target text-muted-foreground hover:bg-muted flex flex-col items-center justify-center"
+              >
+                <Plus className="w-10 h-10" />
+                <span className="font-semibold">Ny spelare</span>
+              </button>
+            </div>
+            <button onClick={() => setEditMode(!editMode)} className="text-xs text-muted-foreground underline">
+              {editMode ? 'Klar' : 'Vuxen: ta bort spelare'}
+            </button>
+          </div>
+        ) : (
+          <>
         {/* Character selection */}
         <div className="bg-card/80 backdrop-blur-sm rounded-3xl p-6 shadow-xl border-2 border-border animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <h2 className="text-lg font-semibold text-foreground mb-3">
+            Vad heter du? ✏️
+          </h2>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value.slice(0, 20))}
+            placeholder="Ditt namn"
+            aria-label="Ditt namn"
+            className="w-full h-14 mb-5 rounded-2xl border-2 border-border bg-background px-4 text-xl text-center text-foreground focus:outline-none focus:ring-4 focus:ring-primary/40"
+          />
           <h2 className="text-lg font-semibold text-foreground mb-4">
             Välj din hjälte! 🦸
           </h2>
@@ -82,6 +150,14 @@ const Index = () => {
           <Play className="w-6 h-6 mr-2" />
           Starta äventyret!
         </Button>
+
+        {profiles.length > 0 && (
+          <button onClick={() => setCreating(false)} className="block mx-auto text-muted-foreground underline">
+            Tillbaka till spelarna
+          </button>
+        )}
+          </>
+        )}
 
         {/* Info cards */}
         <div className="grid grid-cols-2 gap-4 text-left animate-fade-in" style={{ animationDelay: '0.6s' }}>
