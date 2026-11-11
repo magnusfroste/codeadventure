@@ -5,6 +5,7 @@ interface CodeDisplayProps {
   code: Direction[];
   orientation?: 'horizontal' | 'vertical';
   maxDisplay?: number;
+  onRemove?: (index: number) => void;
 }
 
 const directionBg: Record<Direction, string> = {
@@ -14,7 +15,7 @@ const directionBg: Record<Direction, string> = {
   right: 'bg-arrow-right',
 };
 
-export function CodeDisplay({ code, orientation = 'horizontal', maxDisplay = 12 }: CodeDisplayProps) {
+export function CodeDisplay({ code, orientation = 'horizontal', maxDisplay = 12, onRemove }: CodeDisplayProps) {
   const displayCode = code.slice(-maxDisplay);
   const hasMore = code.length > maxDisplay;
 
@@ -41,18 +42,26 @@ export function CodeDisplay({ code, orientation = 'horizontal', maxDisplay = 12 
           <span className="text-muted-foreground text-xl">...</span>
         )}
         {displayCode.map((dir, index) => (
-          <div
+          <button
+            type="button"
             key={index}
+            disabled={!onRemove}
+            onClick={() => onRemove?.(code.length - displayCode.length + index)}
+            aria-label={onRemove ? 'Ta bort pil' : undefined}
             className={cn(
               'w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-white text-xl md:text-2xl font-bold animate-bounce-in',
-              directionBg[dir]
+              directionBg[dir],
+              onRemove && 'cursor-pointer hover:opacity-70 active:scale-90'
             )}
             style={{ animationDelay: `${index * 50}ms` }}
           >
             {DIRECTION_ARROWS[dir]}
-          </div>
+          </button>
         ))}
       </div>
+      {onRemove && (
+        <p className="text-xs text-muted-foreground mt-2">Tryck på en pil för att ta bort den.</p>
+      )}
     </div>
   );
 }

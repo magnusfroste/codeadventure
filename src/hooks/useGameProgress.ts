@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { GameProgress, CharacterType } from '@/types/game';
 
 const STORAGE_KEY = 'kodaventyret-progress';
@@ -10,27 +10,24 @@ const defaultProgress: GameProgress = {
   selectedCharacter: 'mouse',
 };
 
-export function useGameProgress() {
-  const [progress, setProgress] = useState<GameProgress>(defaultProgress);
-
-  useEffect(() => {
+function loadProgress(): GameProgress {
+  let loaded = defaultProgress;
+  try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    let loaded = defaultProgress;
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        loaded = { ...defaultProgress, ...parsed };
-      } catch {
-        loaded = defaultProgress;
-      }
-    }
-    // Synka karaktärsval från startsidan
-    const selectedChar = localStorage.getItem('selectedCharacter');
-    if (selectedChar && ['mouse', 'princess', 'car', 'cat', 'robot'].includes(selectedChar)) {
-      loaded = { ...loaded, selectedCharacter: selectedChar as CharacterType };
-    }
-    setProgress(loaded);
-  }, []);
+    if (saved) loaded = { ...defaultProgress, ...JSON.parse(saved) };
+  } catch {
+    loaded = defaultProgress;
+  }
+  // Synka karaktärsval från startsidan
+  const selectedChar = localStorage.getItem('selectedCharacter');
+  if (selectedChar && ['mouse', 'princess', 'car', 'cat', 'robot'].includes(selectedChar)) {
+    loaded = { ...loaded, selectedCharacter: selectedChar as CharacterType };
+  }
+  return loaded;
+}
+
+export function useGameProgress() {
+  const [progress, setProgress] = useState<GameProgress>(loadProgress);
 
   const saveProgress = useCallback((newProgress: GameProgress) => {
     setProgress(newProgress);

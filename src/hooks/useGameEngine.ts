@@ -7,7 +7,7 @@ export function useGameEngine(level: Level, character: CharacterType) {
   const [gameState, setGameState] = useState<GameState>({
     currentLevel: level.id,
     characterPosition: { ...level.startPosition },
-    code: [],
+    code: [...(level.startCode ?? [])],
     isRunning: false,
     isComplete: false,
     collectedCoins: 0,
@@ -17,6 +17,9 @@ export function useGameEngine(level: Level, character: CharacterType) {
   const runningRef = useRef(false);
   // Ref för att alltid ha tillgång till aktuell position synkront
   const positionRef = useRef<Position>({ ...level.startPosition });
+  const goalIndexRef = useRef(0);
+  const [goalIndex, setGoalIndex] = useState(0);
+  const goals = level.goals ?? [];
 
   // Synka ref med state
   useEffect(() => {
@@ -26,10 +29,12 @@ export function useGameEngine(level: Level, character: CharacterType) {
   // Återställ speltillståndet när nivån ändras
   useEffect(() => {
     positionRef.current = { ...level.startPosition };
+    goalIndexRef.current = 0;
+    setGoalIndex(0);
     setGameState({
       currentLevel: level.id,
       characterPosition: { ...level.startPosition },
-      code: [],
+      code: [...(level.startCode ?? [])],
       isRunning: false,
       isComplete: false,
       collectedCoins: 0,
@@ -40,10 +45,12 @@ export function useGameEngine(level: Level, character: CharacterType) {
   const resetGame = useCallback(() => {
     runningRef.current = false;
     positionRef.current = { ...level.startPosition };
+    goalIndexRef.current = 0;
+    setGoalIndex(0);
     setGameState({
       currentLevel: level.id,
       characterPosition: { ...level.startPosition },
-      code: [],
+      code: [...(level.startCode ?? [])],
       isRunning: false,
       isComplete: false,
       collectedCoins: 0,
@@ -64,6 +71,26 @@ export function useGameEngine(level: Level, character: CharacterType) {
       code: prev.code.slice(0, -1),
     }));
   }, []);
+
+  const removeDirectionAt = useCallback((index: number) => {
+    setGameState((prev) => ({
+      ...prev,
+      code: prev.code.filter((_, i) => i !== index),
+    }));
+  }, []);
+
+  /** Flytta tillbaka figuren till start men behåll koden */
+  const rewind = useCallback(() => {
+    positionRef.current = { ...level.startPosition };
+    goalIndexRef.current = 0;
+    setGoalIndex(0);
+    setGameState((prev) => ({
+      ...prev,
+      characterPosition: { ...level.startPosition },
+      collectedCoins: 0,
+      isComplete: false,
+    }));
+  }, [level]);
 
   const clearCode = useCallback(() => {
     setGameState((prev) => ({
@@ -106,7 +133,13 @@ export function useGameEngine(level: Level, character: CharacterType) {
 
       // Beräkna resultat synkront
       const cell = level.grid[nextPos.y][nextPos.x];
-      const isHome = nextPos.x === level.homePosition.x && nextPos.y === level.homePosition.y;
+      const nextGoal = (level.goals ?? [])[goalIndexRef.current];
+      if (nextGoal && nextGoal.position.x === nextPos.x && nextGoal.position.y === nextPos.y) {
+        goalIndexRef.current += 1;
+        setGoalIndex(goalIndexRef.current);
+      }
+      const allGoalsDone = goalIndexRef.current >= (level.goals ?? []).length;
+      const isHome = allGoalsDone && nextPos.x === level.homePosition.x && nextPos.y === level.homePosition.y;
       const hasCoin = cell.hasCoin || false;
 
       // Uppdatera ref FÖRST (synkront) för efterföljande drag
@@ -125,16 +158,22 @@ export function useGameEngine(level: Level, character: CharacterType) {
     [level]
   );
 
-  const runCode = useCallback(async (): Promise<{ success: boolean; stepsUsed: number }> => {
+  const runCode = useCallback(async (): Promise<{ success: boolean; stepsUsed: number; reachedHome: boolean }> => {
     if (gameState.code.length === 0) {
-      return { success: false, stepsUsed: 0 };
+      return { success: false, stepsUsed: 0, reachedHome: false };
     }
+    // Starta alltid från början
+    positionRef.current = { ...level.startPosition };
+    goalIndexRef.current = 0;
+    setGoalIndex(0);
+    setGameState((prev) => ({ ...prev, characterPosition: { ...level.startPosition }, collectedCoins: 0 }));
 
     runningRef.current = true;
     setGameState((prev) => ({ ...prev, isRunning: true }));
 
     let stepsUsed = 0;
     let success = true;
+    let reachedHome = false;
 
     for (const direction of gameState.code) {
       if (!runningRef.current) break;
@@ -150,6 +189,7 @@ export function useGameEngine(level: Level, character: CharacterType) {
       }
 
       if (result.reachedHome) {
+        reachedHome = true;
         break;
       }
     }
@@ -157,8 +197,8 @@ export function useGameEngine(level: Level, character: CharacterType) {
     runningRef.current = false;
     setGameState((prev) => ({ ...prev, isRunning: false }));
 
-    return { success, stepsUsed };
-  }, [gameState.code, moveCharacter]);
+    return { success, stepsUsed, reachedHome };
+  }, [gameState.code, moveCharacter, level]);
 
   const executeMove = useCallback(
     async (direction: Direction): Promise<{ success: boolean; reachedHome: boolean }> => {
@@ -183,7 +223,11 @@ export function useGameEngine(level: Level, character: CharacterType) {
     resetGame,
     addDirection,
     removeLastDirection,
+    removeDirectionAt,
+    rewind,
     clearCode,
+    goalIndex,
+    goals,
     runCode,
     executeMove,
     calculateStars,

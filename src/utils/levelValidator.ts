@@ -7,7 +7,20 @@ interface ValidationResult {
 }
 
 export function findPath(level: Level): Position[] | null {
-  const { grid, gridSize, startPosition, homePosition } = level;
+  const stops = [...(level.goals ?? []).map((g) => g.position), level.homePosition];
+  let from = level.startPosition;
+  let full: Position[] = [from];
+  for (const stop of stops) {
+    const seg = findSegment(level, from, stop);
+    if (!seg) return null;
+    full = [...full, ...seg.slice(1)];
+    from = stop;
+  }
+  return full;
+}
+
+function findSegment(level: Level, startPosition: Position, homePosition: Position): Position[] | null {
+  const { grid, gridSize } = level;
   
   const visited = new Set<string>();
   const queue: { pos: Position; path: Position[] }[] = [

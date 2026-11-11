@@ -230,13 +230,196 @@ export const level10: Level = {
   optimalMoves: 8,
 };
 
+// ===== Skogens hjälpare (11-14): uppdrag på vägen =====
+export const level11: Level = {
+  id: 11,
+  name: 'Äpplet först',
+  description: 'Hämta äpplet 🍎 och gå sedan hem!',
+  gridSize: 3,
+  grid: [
+    [P(), G(), H()],
+    [P(), P(), P()],
+    [P(), G(), G()],
+  ],
+  startPosition: { x: 0, y: 2 },
+  homePosition: { x: 2, y: 0 },
+  goals: [{ position: { x: 0, y: 0 }, emoji: '🍎', label: 'Äpplet' }],
+  mode: 'guided',
+  stars: 0,
+  maxStars: 3,
+  unlocked: false,
+  completed: false,
+  optimalMoves: 6,
+};
+
+export const level12: Level = {
+  id: 12,
+  name: 'Två vänner',
+  description: 'Hälsa på kaninen 🐰 först, sedan igelkotten 🦔!',
+  gridSize: 4,
+  grid: [
+    [P(), P(), P(), H()],
+    [P(), G(), G(), P()],
+    [P(), G(), G(), P()],
+    [P(), P(), P(), P()],
+  ],
+  startPosition: { x: 0, y: 3 },
+  homePosition: { x: 3, y: 0 },
+  goals: [
+    { position: { x: 2, y: 3 }, emoji: '🐰', label: 'Kaninen' },
+    { position: { x: 3, y: 1 }, emoji: '🦔', label: 'Igelkotten' },
+  ],
+  mode: 'guided',
+  stars: 0,
+  maxStars: 3,
+  unlocked: false,
+  completed: false,
+  optimalMoves: 6,
+};
+
+export const level13: Level = {
+  id: 13,
+  name: 'Två vägar',
+  description: 'Två vägar leder hem. Vilken är kortast?',
+  gridSize: 4,
+  grid: [
+    [H(), P(), P(), P()],
+    [P(), G(), G(), P()],
+    [P(), G(), G(), P()],
+    [P(), P(), P(), P()],
+  ],
+  startPosition: { x: 1, y: 3 },
+  homePosition: { x: 0, y: 0 },
+  mode: 'plan',
+  stars: 0,
+  maxStars: 3,
+  unlocked: false,
+  completed: false,
+  optimalMoves: 4,
+};
+
+export const level14: Level = {
+  id: 14,
+  name: 'Svampplockaren',
+  description: 'Planera vägen: plocka svampen 🍄 och gå hem!',
+  gridSize: 4,
+  grid: [
+    [G(), G(), P(), H()],
+    [P(), P(), P(), G()],
+    [P(), G(), P(), G()],
+    [P(), P(), P(), G()],
+  ],
+  startPosition: { x: 0, y: 3 },
+  homePosition: { x: 3, y: 0 },
+  goals: [{ position: { x: 0, y: 1 }, emoji: '🍄', label: 'Svampen' }],
+  mode: 'plan',
+  stars: 0,
+  maxStars: 3,
+  unlocked: false,
+  completed: false,
+  optimalMoves: 6,
+};
+
+// ===== Robots verkstad (15-18): laga och förutse kod =====
+export const level15: Level = {
+  id: 15,
+  name: 'Saknad pil',
+  description: 'Roboten tappade en pil! Lägg till den som fattas.',
+  gridSize: 4,
+  grid: [
+    [P(), P(), P(), H()],
+    [P(), G(), G(), G()],
+    [P(), G(), G(), G()],
+    [P(), G(), G(), G()],
+  ],
+  startPosition: { x: 0, y: 3 },
+  homePosition: { x: 3, y: 0 },
+  startCode: ['up', 'up', 'up', 'right', 'right'],
+  mode: 'plan',
+  stars: 0,
+  maxStars: 3,
+  unlocked: false,
+  completed: false,
+  optimalMoves: 6,
+};
+
+export const level16: Level = {
+  id: 16,
+  name: 'Fel pil',
+  description: 'En pil pekar åt fel håll. Hitta den och byt ut den!',
+  gridSize: 4,
+  grid: [
+    [G(), G(), G(), H()],
+    [G(), P(), P(), P()],
+    [G(), P(), G(), G()],
+    [P(), P(), G(), G()],
+  ],
+  startPosition: { x: 0, y: 3 },
+  homePosition: { x: 3, y: 0 },
+  startCode: ['right', 'up', 'up', 'right', 'right', 'down'],
+  mode: 'plan',
+  stars: 0,
+  maxStars: 3,
+  unlocked: false,
+  completed: false,
+  optimalMoves: 6,
+};
+
+export const level17: Level = {
+  id: 17,
+  name: 'En pil för mycket',
+  description: 'Koden har en extra pil. Tryck på den för att ta bort den!',
+  gridSize: 5,
+  grid: [
+    [G(), G(), G(), G(), H()],
+    [G(), G(), G(), G(), P()],
+    [P(), P(), P(), P(), P()],
+    [P(), G(), G(), G(), G()],
+    [P(), G(), G(), G(), G()],
+  ],
+  startPosition: { x: 0, y: 4 },
+  homePosition: { x: 4, y: 0 },
+  startCode: ['up', 'up', 'up', 'right', 'right', 'right', 'right', 'up', 'up'],
+  mode: 'plan',
+  stars: 0,
+  maxStars: 3,
+  unlocked: false,
+  completed: false,
+  optimalMoves: 8,
+};
+
+export const level18: Level = {
+  id: 18,
+  name: 'Vart går roboten?',
+  description: 'Läs koden. Peka var du tror roboten hamnar – tryck sedan KÖR!',
+  gridSize: 5,
+  grid: [
+    [H(), P(), P(), G(), G()],
+    [G(), G(), P(), G(), G()],
+    [G(), G(), P(), P(), P()],
+    [G(), G(), G(), G(), P()],
+    [G(), G(), G(), G(), P()],
+  ],
+  startPosition: { x: 4, y: 4 },
+  homePosition: { x: 0, y: 0 },
+  startCode: ['up', 'up', 'left', 'left', 'up', 'up', 'left', 'left'],
+  mode: 'plan',
+  stars: 0,
+  maxStars: 3,
+  unlocked: false,
+  completed: false,
+  optimalMoves: 8,
+};
+
 export const allLevels: Level[] = [
   level1, level2, level3, level4, level5,
   level6, level7, level8, level9, level10,
+  level11, level12, level13, level14,
+  level15, level16, level17, level18,
 ];
 
 // Validate all levels in development mode
-if (import.meta.env.DEV) {
+if (import.meta.env?.DEV) {
   import('@/utils/levelValidator').then(({ validateAllLevels }) => {
     validateAllLevels(allLevels);
   });

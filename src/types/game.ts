@@ -29,6 +29,16 @@ export interface Level {
   unlocked: boolean;
   completed: boolean;
   optimalMoves: number;
+  /** Saker som måste hämtas i ordning innan hemmet räknas */
+  goals?: LevelGoal[];
+  /** Färdig kod som barnet ska laga eller förutse (Robots verkstad) */
+  startCode?: Direction[];
+}
+
+export interface LevelGoal {
+  position: Position;
+  emoji: string;
+  label: string;
 }
 
 export interface GameState {

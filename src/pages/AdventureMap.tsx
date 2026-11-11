@@ -70,6 +70,24 @@ export default function AdventureMap() {
             isLevelUnlocked={isLevelUnlocked}
             onSelectLevel={(id) => navigate(`/level/${id}`)}
           />
+
+          <LevelSection
+            title="🌳 Nivå 11-14: Skogens hjälpare"
+            description="Hämta saker och hälsa på vänner på vägen hem!"
+            levels={allLevels.slice(10, 14)}
+            getLevelStars={getLevelStars}
+            isLevelUnlocked={isLevelUnlocked}
+            onSelectLevel={(id) => navigate(`/level/${id}`)}
+          />
+
+          <LevelSection
+            title="🔧 Nivå 15-18: Robots verkstad"
+            description="Robotens kod är trasig – kan du laga den?"
+            levels={allLevels.slice(14, 18)}
+            getLevelStars={getLevelStars}
+            isLevelUnlocked={isLevelUnlocked}
+            onSelectLevel={(id) => navigate(`/level/${id}`)}
+          />
         </div>
 
         {/* Phase 2: Scratch Programming - Locked until 9 stars */}

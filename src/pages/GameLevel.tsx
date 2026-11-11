@@ -52,7 +52,11 @@ export default function GameLevel() {
     resetGame,
     addDirection,
     removeLastDirection,
+    removeDirectionAt,
+    rewind,
     clearCode,
+    goalIndex,
+    goals,
     runCode,
     executeMove,
     calculateStars,
@@ -111,31 +115,20 @@ export default function GameLevel() {
   const handleRunCode = useCallback(async () => {
     if (soundEnabled) playSound('start');
     const result = await runCode();
-    
     await new Promise((resolve) => setTimeout(resolve, 500));
+    if (result.reachedHome) return; // firas av effekten nedan
 
-    if (gameState.characterPosition.x === level.homePosition.x && 
-        gameState.characterPosition.y === level.homePosition.y) {
-      return;
-    }
-
-    if (result.success) {
-      const finalState = gameState;
-      if (finalState.isComplete) {
-        const stars = calculateStars(result.stepsUsed);
-        setEarnedStars(stars);
-        completeLevel(level.id, stars);
-        if (soundEnabled) playSound('celebrate');
-        triggerConfetti();
-        setShowCelebration(true);
-      }
+    if (soundEnabled) playSound('error');
+    triggerShake();
+    if (!result.success) {
+      setFailureMessage(`Hoppsan! Pil nummer ${result.stepsUsed} gick in i något. Laga koden och prova igen! 💪`);
+    } else if (goals.length > 0) {
+      setFailureMessage('Koden tog slut! Kom ihåg att hämta allt i uppdraget innan du går hem. 🧺');
     } else {
-      if (soundEnabled) playSound('error');
-      triggerShake();
-      setFailureMessage('Hoppsan! Du kom inte hela vägen hem. Försök igen! 💪');
-      setShowFailure(true);
+      setFailureMessage('Koden tog slut innan hemmet. Lägg till fler pilar! ➕');
     }
-  }, [runCode, gameState, level, calculateStars, completeLevel, soundEnabled, playSound, triggerShake, triggerConfetti]);
+    setShowFailure(true);
+  }, [runCode, goals.length, soundEnabled, playSound, triggerShake]);
 
   // Monitor for completion
   useEffect(() => {
@@ -260,13 +253,27 @@ export default function GameLevel() {
               homePosition={level.homePosition}
               character={progress.selectedCharacter}
               gridSize={level.gridSize}
+              goals={goals}
+              goalIndex={goalIndex}
             />
+            {goals.length > 0 && (
+              <p className="text-center mt-2 text-lg font-medium text-foreground">
+                Uppdrag: {goals.map((g, i) => (
+                  <span key={i} className={i < goalIndex ? 'opacity-40 line-through' : ''}>
+                    {i > 0 && ' → '}{g.emoji} {g.label}
+                  </span>
+                ))} → 🏠
+              </p>
+            )}
           </div>
 
           {/* Controls Panel */}
           <div className="space-y-6 w-full max-w-md">
             {/* Code Display */}
-            <CodeDisplay code={gameState.code} />
+            <CodeDisplay
+              code={gameState.code}
+              onRemove={isPlanOrMaster && !gameState.isRunning && !gameState.isComplete ? (i) => { if (soundEnabled) playSound('click'); removeDirectionAt(i); } : undefined}
+            />
 
             {/* Arrow Controls */}
             <div className="flex justify-center">
@@ -338,7 +345,11 @@ export default function GameLevel() {
 
       <FailureModal
         open={showFailure}
-        onRetry={handleReset}
+        onRetry={() => {
+          setShowFailure(false);
+          if (isGuided) handleReset();
+          else rewind();
+        }}
         onClose={() => setShowFailure(false)}
         message={failureMessage}
       />

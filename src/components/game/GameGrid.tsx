@@ -1,4 +1,4 @@
-import { Cell, Position, CharacterType, CHARACTER_EMOJIS } from '@/types/game';
+import { Cell, Position, CharacterType, CHARACTER_EMOJIS, LevelGoal } from '@/types/game';
 import { cn } from '@/lib/utils';
 
 interface GameGridProps {
@@ -7,9 +7,11 @@ interface GameGridProps {
   homePosition: Position;
   character: CharacterType;
   gridSize: number;
+  goals?: LevelGoal[];
+  goalIndex?: number;
 }
 
-export function GameGrid({ grid, characterPosition, homePosition, character, gridSize }: GameGridProps) {
+export function GameGrid({ grid, characterPosition, homePosition, character, gridSize, goals = [], goalIndex = 0 }: GameGridProps) {
   const cellSize = gridSize <= 3 
     ? 'w-16 h-16 md:w-18 md:h-18 lg:w-24 lg:h-24' 
     : gridSize <= 4 
@@ -45,6 +47,20 @@ export function GameGrid({ grid, characterPosition, homePosition, character, gri
               {/* Home icon */}
               {isHome && !isCharacter && (
                 <span className="animate-float">🏠</span>
+              )}
+
+              {/* Uppdrag att hämta */}
+              {goals.map((g, i) =>
+                g.position.x === x && g.position.y === y && i >= goalIndex && !isCharacter ? (
+                  <span key={i} className={cn('relative', i === goalIndex && 'animate-float')} aria-label={g.label}>
+                    {g.emoji}
+                    {goals.length > 1 && (
+                      <span className="absolute -top-2 -right-3 w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
+                        {i + 1}
+                      </span>
+                    )}
+                  </span>
+                ) : null
               )}
 
               {/* Coin */}
