@@ -2,7 +2,7 @@
 import { test, expect } from 'bun:test';
 import { allLevels } from '../data/levels';
 import { findPath } from './levelValidator';
-import { createProfile, setActiveProfile, getActiveProfile, getProfiles, progressKeyFor, getProfileStars } from '../lib/profiles';
+import { createProfile, setActiveProfile, getActiveProfile, getProfiles, progressKeyFor, getProfileStars, tutorialKeyForActiveProfile } from '../lib/profiles';
 
 test('all 18 levels have a path through the ordered goals to home', () => {
   expect(allLevels).toHaveLength(18);
@@ -34,4 +34,16 @@ test('profile progress survives reload and stays separate for each child', () =>
   expect(getActiveProfile()?.name).toBe('Martin');
   expect(getProfileStars(a.id)).toBe(3);
   expect(JSON.parse(localStorage.getItem(progressKeyFor(a.id)) ?? '{}').unlockedLevels).toEqual([1,2]);
+});
+
+test('dismissing instructions for Martin does not dismiss them for Kim', () => {
+  const [martin, kim] = getProfiles();
+  setActiveProfile(martin.id);
+  const key = tutorialKeyForActiveProfile();
+  localStorage.setItem(key, JSON.stringify(['guided-1']));
+  setActiveProfile(kim.id);
+  expect(tutorialKeyForActiveProfile()).not.toBe(key);
+  expect(localStorage.getItem(tutorialKeyForActiveProfile())).toBeNull();
+  setActiveProfile(martin.id);
+  expect(JSON.parse(localStorage.getItem(tutorialKeyForActiveProfile()) ?? '[]')).toEqual(['guided-1']);
 });

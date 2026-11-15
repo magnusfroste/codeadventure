@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { CHARACTER_EMOJIS, CharacterType } from '@/types/game';
+import { tutorialKeyForActiveProfile } from '@/lib/profiles';
 
 interface TutorialBubbleProps {
   levelId: number;
@@ -24,11 +25,9 @@ const TUTORIALS: Record<string, { title: string; text: string }> = {
   },
 };
 
-const SEEN_KEY = 'kodaventyret-tutorials-seen';
-
 function getSeenTutorials(): string[] {
   try {
-    return JSON.parse(localStorage.getItem(SEEN_KEY) || '[]');
+    return JSON.parse(localStorage.getItem(tutorialKeyForActiveProfile()) || '[]');
   } catch {
     return [];
   }
@@ -37,7 +36,7 @@ function getSeenTutorials(): string[] {
 function markSeen(key: string) {
   const seen = getSeenTutorials();
   if (!seen.includes(key)) {
-    localStorage.setItem(SEEN_KEY, JSON.stringify([...seen, key]));
+    localStorage.setItem(tutorialKeyForActiveProfile(), JSON.stringify([...seen, key]));
   }
 }
 

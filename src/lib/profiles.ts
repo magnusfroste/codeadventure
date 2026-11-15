@@ -12,6 +12,11 @@ const LEGACY_PROGRESS_KEY = 'kodaventyret-progress';
 
 export const progressKeyFor = (id: string) => `kodaventyret-progress-${id}`;
 
+export function tutorialKeyForActiveProfile(): string {
+  const profile = getActiveProfile();
+  return profile ? `kodaventyret-tutorials-seen-${profile.id}` : 'kodaventyret-tutorials-seen';
+}
+
 function read(): ChildProfile[] {
   try {
     return JSON.parse(localStorage.getItem(PROFILES_KEY) || '[]');

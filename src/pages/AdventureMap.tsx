@@ -30,7 +30,7 @@ export default function AdventureMap() {
           
           {player && (
             <div className="flex items-center justify-center gap-3 flex-wrap">
-              <span className="text-2xl font-bold text-foreground">
+              <span className="min-w-0 max-w-full break-words text-2xl font-bold text-foreground">
                 Hej {player.name}! {CHARACTER_EMOJIS[progress.selectedCharacter]}
               </span>
               <Button variant="outline" size="sm" className="rounded-xl" onClick={() => navigate('/')}>
