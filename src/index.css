@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 /* Kodäventyret - Playful Adventure Design System */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -17,7 +16,7 @@
     --popover-foreground: 240 20% 20%;
 
     /* Bright adventure blue */
-    --primary: 210 90% 55%;
+    --primary: 210 90% 37%;
     --primary-foreground: 0 0% 100%;
 
     /* Soft lavender */
@@ -25,13 +24,13 @@
     --secondary-foreground: 270 40% 25%;
 
     --muted: 210 30% 92%;
-    --muted-foreground: 210 15% 45%;
+    --muted-foreground: 210 15% 35%;
 
     /* Warm orange for accents */
     --accent: 35 95% 55%;
     --accent-foreground: 35 90% 15%;
 
-    --destructive: 0 75% 55%;
+    --destructive: 0 75% 40%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 210 30% 85%;
@@ -49,7 +48,7 @@
     --game-coin: 50 100% 50%;
     
     /* Success/celebration */
-    --success: 145 70% 45%;
+    --success: 145 70% 27%;
     --success-foreground: 0 0% 100%;
     
     /* Character colors */
@@ -60,10 +59,10 @@
     --char-robot: 220 50% 60%;
 
     /* Arrow colors */
-    --arrow-up: 210 85% 55%;
-    --arrow-down: 145 65% 45%;
-    --arrow-left: 35 90% 55%;
-    --arrow-right: 320 70% 55%;
+    --arrow-up: 210 85% 37%;
+    --arrow-down: 145 65% 27%;
+    --arrow-left: 35 90% 30%;
+    --arrow-right: 320 70% 37%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -122,6 +121,24 @@
 
   body {
     @apply bg-background text-foreground font-fredoka;
+  }
+
+  button, a, input, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  :where(button, a, input, [role="button"]):focus-visible {
+    outline: 3px solid hsl(var(--ring));
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 

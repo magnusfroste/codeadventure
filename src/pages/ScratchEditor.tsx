@@ -4,7 +4,8 @@ import {
   DndContext,
   DragOverlay,
   closestCenter,
-  PointerSensor,
+  MouseSensor,
+  KeyboardSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -12,7 +13,7 @@ import {
   DragEndEvent,
   DragOverEvent,
 } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useGameProgress } from '@/hooks/useGameProgress';
 import { useScratchEngine } from '@/hooks/useScratchEngine';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
@@ -61,11 +62,12 @@ export default function ScratchEditor() {
 
   // Configure sensors for both mouse and touch
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
         distance: 8,
       },
     }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 200,
@@ -109,22 +111,37 @@ export default function ScratchEditor() {
       const blockType = activeData.type as BlockType;
       
       // Dropped on workspace
-      if (over.id === 'workspace' || overData?.isWorkspace) {
+      if (over.id === 'workspace' || overData?.isWorkspace || overData?.block) {
         addBlock(blockType);
         if (soundEnabled) {
           playSound('drop');
         }
-        toast.success(`${BLOCK_DEFINITIONS[blockType].emoji} ${BLOCK_DEFINITIONS[blockType].label} tillagd!`);
+        toast.success(`${BLOCK_DEFINITIONS[blockType].emoji} ${BLOCK_DEFINITIONS[blockType].label} lades till!`);
       }
       // Dropped on a loop
       else if (overData?.isLoopDropZone) {
         const loopId = overData.loopId as string;
+        if (blockType === 'loop') return;
         addBlockToLoop(loopId, blockType);
         if (soundEnabled) {
           playSound('drop');
         }
-        toast.success(`Block tillagd i loopen!`);
+        toast.success(`Blocket lades till i loopen!`);
       }
+      return;
+    }
+
+    if (activeData?.isNested && activeData.block) {
+      const child = activeData.block as Block;
+      const cleaned: Block[] = blocks.map(b => ({ ...b, children: b.children?.filter(c => c.id !== child.id) }));
+      if (overData?.isLoopDropZone) {
+        setBlocks(cleaned.map(b => b.id === overData.loopId ? { ...b, children: [...(b.children ?? []), child] } : b));
+      } else {
+        const index = cleaned.findIndex(b => b.id === over.id);
+        cleaned.splice(index < 0 ? cleaned.length : index, 0, child);
+        setBlocks(cleaned);
+      }
+      if (soundEnabled) playSound('drop');
       return;
     }
 
@@ -135,8 +152,8 @@ export default function ScratchEditor() {
       // Moving to a loop
       if (overData?.isLoopDropZone) {
         const loopId = overData.loopId as string;
-        removeBlock(activeBlock.id);
-        addBlockToLoop(loopId, activeBlock.type);
+        if (activeBlock.type === 'loop' || activeBlock.id === loopId) return;
+        setBlocks(prev => prev.filter(b => b.id !== activeBlock.id).map(b => b.id === loopId ? { ...b, children: [...(b.children ?? []), activeBlock] } : b));
         if (soundEnabled) {
           playSound('drop');
         }
@@ -177,12 +194,13 @@ export default function ScratchEditor() {
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={() => { setActiveId(null); setActiveDragData(null); }}
     >
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 p-4 md:p-6">
+      <div className="min-h-dvh bg-gradient-to-b from-background to-secondary/20 p-4 md:p-6">
         <div className="max-w-7xl mx-auto space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap min-w-0">
               <Button
                 onClick={() => navigate('/map')}
                 variant="ghost"
@@ -192,7 +210,7 @@ export default function ScratchEditor() {
                 Tillbaka
               </Button>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-primary flex items-center gap-2">
+                <h1 className="text-xl md:text-3xl font-bold text-primary flex items-center gap-2">
                   <Sparkles className="w-8 h-8" />
                   Blockprogrammering
                 </h1>
@@ -206,6 +224,7 @@ export default function ScratchEditor() {
                 variant="outline"
                 size="icon"
                 className="rounded-xl"
+                aria-label={soundEnabled ? 'Stäng av ljud' : 'Slå på ljud'}
                 title={soundEnabled ? 'Stäng av ljud' : 'Slå på ljud'}
               >
                 {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
@@ -238,7 +257,7 @@ export default function ScratchEditor() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Block Palette */}
             <div className="lg:col-span-3">
-              <BlockPalette disabled={isRunning} />
+              <BlockPalette disabled={isRunning} onAdd={addBlock} />
             </div>
 
             {/* Code Workspace */}
@@ -324,7 +343,7 @@ export default function ScratchEditor() {
               />
               <ChallengeCard
                 emoji="💃"
-                title="Dans-party"
+                title="Dansfest"
                 description="Kombinera hopp och rörelser i en loop!"
               />
             </div>

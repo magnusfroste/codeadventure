@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Star, ArrowRight, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -38,6 +38,7 @@ export function CelebrationModal({
       <DialogContent className="sm:max-w-md text-center bg-gradient-to-b from-card to-secondary/20 border-4 border-primary/30 rounded-3xl">
         <VisuallyHidden.Root>
           <DialogTitle>Nivå avklarad</DialogTitle>
+          <DialogDescription>Du klarade {levelName} och fick {stars} stjärnor.</DialogDescription>
         </VisuallyHidden.Root>
         <div className="py-6 space-y-6">
           <div className="text-6xl celebration">🏆</div>
@@ -63,7 +64,7 @@ export function CelebrationModal({
             ))}
           </div>
 
-          <div className="flex gap-4 justify-center pt-4">
+          <div className="flex flex-wrap gap-4 justify-center pt-4">
             <Button
               onClick={onRetry}
               variant="outline"

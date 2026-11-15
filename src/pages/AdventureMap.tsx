@@ -17,7 +17,7 @@ export default function AdventureMap() {
   const hasCompletedPhase1 = totalStars >= 9; // At least 3 levels with 3 stars each
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-secondary/10 to-background p-4 md:p-6">
+    <div className="min-h-dvh bg-gradient-to-b from-background via-secondary/10 to-background p-4 md:p-6">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -29,7 +29,7 @@ export default function AdventureMap() {
           </p>
           
           {player && (
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-3 flex-wrap">
               <span className="text-2xl font-bold text-foreground">
                 Hej {player.name}! {CHARACTER_EMOJIS[progress.selectedCharacter]}
               </span>
@@ -57,9 +57,9 @@ export default function AdventureMap() {
 
           {/* Guided Levels */}
           <LevelSection
-            title="🌱 Nivå 1-3: Första stegen"
-            description="Guidad läge - lär dig grunderna!"
-            levels={allLevels.slice(0, 3)}
+            title="🌱 Nivå 1–4: Första stegen"
+            description="Guidat läge - lär dig grunderna!"
+            levels={allLevels.slice(0, 4)}
             getLevelStars={getLevelStars}
             isLevelUnlocked={isLevelUnlocked}
             onSelectLevel={(id) => navigate(`/level/${id}`)}
@@ -67,9 +67,9 @@ export default function AdventureMap() {
 
           {/* Plan Levels */}
           <LevelSection
-            title="🧠 Nivå 4-6: Tänk först!"
+            title="🧠 Nivå 5–8: Tänk först!"
             description="Planera din kod innan du kör!"
-            levels={allLevels.slice(3, 6)}
+            levels={allLevels.slice(4, 8)}
             getLevelStars={getLevelStars}
             isLevelUnlocked={isLevelUnlocked}
             onSelectLevel={(id) => navigate(`/level/${id}`)}
@@ -77,9 +77,9 @@ export default function AdventureMap() {
 
           {/* Master Levels */}
           <LevelSection
-            title="🏆 Nivå 7-10: Mästarbanor"
+            title="🏆 Nivå 9–10: Mästarbanor"
             description="Hinder, mynt och utmaningar!"
-            levels={allLevels.slice(6, 10)}
+            levels={allLevels.slice(8, 10)}
             getLevelStars={getLevelStars}
             isLevelUnlocked={isLevelUnlocked}
             onSelectLevel={(id) => navigate(`/level/${id}`)}
@@ -106,21 +106,21 @@ export default function AdventureMap() {
 
         {/* Phase 2: Scratch Programming - Locked until 9 stars */}
         {hasCompletedPhase1 ? (
-          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl p-6 shadow-lg border-2 border-purple-500/30 animate-scale-in">
+          <div className="bg-secondary/20 rounded-2xl p-6 shadow-lg border-2 border-secondary animate-scale-in">
             <div className="flex items-start gap-4 flex-wrap">
               <div className="text-5xl">✨</div>
-              <div className="flex-1 min-w-[200px]">
-                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                  <Sparkles className="w-6 h-6 text-purple-500" />
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center flex-wrap gap-2">
+                  <Sparkles className="w-6 h-6 text-secondary-foreground" />
                   Fas 2: Blockprogrammering
-                  <span className="text-sm bg-green-500/20 text-green-600 px-2 py-1 rounded-full">UPPLÅST!</span>
+                  <span className="text-sm bg-success text-success-foreground px-2 py-1 rounded-full">UPPLÅST!</span>
                 </h2>
                 <p className="text-muted-foreground mt-1">
-                  Skapa egna program med drag-and-drop block! Lär dig loopar och sekvenser.
+                  Skapa egna program med block! Flytta, hoppa och upprepa.
                 </p>
                 <Button
                   onClick={() => navigate('/scratch')}
-                  className="mt-4 bg-purple-500 hover:bg-purple-600 text-white rounded-xl"
+                  className="max-w-full whitespace-normal px-4 mt-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
                   size="lg"
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
@@ -133,13 +133,13 @@ export default function AdventureMap() {
           <div className="bg-muted/50 rounded-2xl p-6 shadow-lg border-2 border-muted">
             <div className="flex items-start gap-4 flex-wrap">
               <div className="text-5xl opacity-50">🔒</div>
-              <div className="flex-1 min-w-[200px]">
-                <h2 className="text-2xl font-bold text-muted-foreground flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl md:text-2xl font-bold text-muted-foreground flex items-center flex-wrap gap-2">
                   <Lock className="w-6 h-6" />
                   Fas 2: Blockprogrammering
                 </h2>
                 <p className="text-muted-foreground mt-1">
-                  Skapa egna program med drag-and-drop block! Lär dig loopar och sekvenser.
+                  Skapa egna program med block! Flytta, hoppa och upprepa.
                 </p>
                 
                 {/* Progress indicator */}
@@ -150,7 +150,7 @@ export default function AdventureMap() {
                   </div>
                   <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                     <div 
-                      className="bg-gradient-to-r from-game-coin to-yellow-400 h-full rounded-full transition-all duration-500"
+                      className="bg-game-coin h-full rounded-full transition-all duration-500"
                       style={{ width: `${Math.min((totalStars / 9) * 100, 100)}%` }}
                     />
                   </div>

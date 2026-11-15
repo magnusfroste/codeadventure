@@ -38,7 +38,9 @@ function findSegment(level: Level, startPosition: Position, homePosition: Positi
   ];
   
   while (queue.length > 0) {
-    const { pos, path } = queue.shift()!;
+    const current = queue.shift();
+    if (!current) break;
+    const { pos, path } = current;
     
     if (pos.x === homePosition.x && pos.y === homePosition.y) {
       return path;
@@ -91,7 +93,7 @@ export function validateAllLevels(levels: Level[]): void {
       results.push(`❌ Nivå ${level.id}: OLÖSBAR`);
       allValid = false;
     } else {
-      const pathLength = result.path!.length - 1;
+      const pathLength = (result.path?.length ?? 1) - 1;
       const efficiency = pathLength === level.optimalMoves ? '⭐ PERFEKT' : pathLength < level.optimalMoves ? '🔧 KONTROLLERA optimalMoves' : '✅ OK';
       console.log(`✅ Nivå ${level.id} (${level.name}): ${efficiency} - Kortaste väg: ${pathLength} steg (optimal: ${level.optimalMoves})`);
       results.push(`✅ Nivå ${level.id}: ${pathLength} steg`);

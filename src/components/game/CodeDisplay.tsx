@@ -53,9 +53,9 @@ export function CodeDisplay({ code, orientation = 'horizontal', maxDisplay = 12,
             disabled={!onRemove}
             onClick={() => onRemove?.(realIndex)}
             aria-current={isActive ? 'step' : undefined}
-            aria-label={onRemove ? 'Ta bort pil' : undefined}
+            aria-label={onRemove ? `Ta bort pil ${realIndex + 1}` : `Pil ${realIndex + 1}`}
             className={cn(
-              'w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-white text-xl md:text-2xl font-bold transition-all duration-200',
+              'w-11 h-11 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-primary-foreground text-xl md:text-2xl font-bold transition-all duration-200',
               directionBg[dir],
               onRemove && 'cursor-pointer hover:opacity-70 active:scale-90',
               isActive && 'scale-125 ring-4 ring-accent ring-offset-2 z-10',

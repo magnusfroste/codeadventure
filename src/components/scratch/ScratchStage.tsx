@@ -17,8 +17,8 @@ export function ScratchStage({ character, x, y, isJumping, rotation }: ScratchSt
       <div
         className="relative rounded-xl overflow-hidden"
         style={{
-          width: 400,
-          height: 300,
+          width: '100%',
+          aspectRatio: '4 / 3',
           maxWidth: '100%',
           background: 'linear-gradient(180deg, hsl(200 80% 70%) 0%, hsl(120 40% 50%) 100%)',
         }}
@@ -56,9 +56,9 @@ export function ScratchStage({ character, x, y, isJumping, rotation }: ScratchSt
             isJumping && 'animate-bounce'
           )}
           style={{
-            left: x - 25,
-            top: y - 25,
-            transform: `rotate(${rotation}deg) ${isJumping ? 'translateY(-30px)' : ''}`,
+            left: `${x / 4}%`,
+            top: `${y / 3}%`,
+            transform: `translate(-50%, -50%) rotate(${rotation}deg) ${isJumping ? 'translateY(-30px)' : ''}`,
           }}
         >
           {CHARACTER_EMOJIS[character]}

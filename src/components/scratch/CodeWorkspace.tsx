@@ -29,7 +29,7 @@ export function CodeWorkspace({
   });
 
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-lg h-full flex flex-col">
+    <div className="bg-card rounded-2xl p-4 shadow-lg h-full min-w-0 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-foreground">Ditt program</h3>
         {blocks.length > 0 && (
@@ -46,7 +46,7 @@ export function CodeWorkspace({
       <div
         ref={setNodeRef}
         className={cn(
-          'flex-1 rounded-xl p-4 space-y-2 overflow-y-auto min-h-[250px]',
+          'flex-1 rounded-xl p-2 sm:p-4 space-y-2 overflow-y-auto min-h-[250px]',
           'border-2 border-dashed transition-all duration-200',
           isOver 
             ? 'bg-primary/10 border-primary border-solid' 

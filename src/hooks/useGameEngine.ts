@@ -15,6 +15,9 @@ export function useGameEngine(level: Level, character: CharacterType) {
   });
 
   const runningRef = useRef(false);
+  const runVersion = useRef(0);
+  const collected = useRef(new Set<string>());
+  useEffect(() => () => { runningRef.current = false; runVersion.current += 1; }, []);
   // Ref för att alltid ha tillgång till aktuell position synkront
   const positionRef = useRef<Position>({ ...level.startPosition });
   const goalIndexRef = useRef(0);
@@ -32,6 +35,7 @@ export function useGameEngine(level: Level, character: CharacterType) {
 
   // Återställ speltillståndet när nivån ändras
   useEffect(() => {
+    collected.current.clear();
     positionRef.current = { ...level.startPosition };
     goalIndexRef.current = 0;
     setGoalIndex(0);
@@ -50,6 +54,8 @@ export function useGameEngine(level: Level, character: CharacterType) {
 
   const resetGame = useCallback(() => {
     runningRef.current = false;
+    runVersion.current += 1;
+    collected.current.clear();
     positionRef.current = { ...level.startPosition };
     goalIndexRef.current = 0;
     setGoalIndex(0);
@@ -95,6 +101,7 @@ export function useGameEngine(level: Level, character: CharacterType) {
 
   /** Flytta tillbaka figuren till start men behåll koden */
   const rewind = useCallback(() => {
+    collected.current.clear();
     positionRef.current = { ...level.startPosition };
     goalIndexRef.current = 0;
     setGoalIndex(0);
@@ -158,7 +165,9 @@ export function useGameEngine(level: Level, character: CharacterType) {
       }
       const allGoalsDone = goalIndexRef.current >= (level.goals ?? []).length;
       const isHome = allGoalsDone && nextPos.x === level.homePosition.x && nextPos.y === level.homePosition.y;
-      const hasCoin = cell.hasCoin || false;
+      const key = `${nextPos.x},${nextPos.y}`;
+      const hasCoin = Boolean(cell.hasCoin) && !collected.current.has(key);
+      if (hasCoin) collected.current.add(key);
 
       // Uppdatera ref FÖRST (synkront) för efterföljande drag
       positionRef.current = nextPos;
@@ -181,6 +190,7 @@ export function useGameEngine(level: Level, character: CharacterType) {
       return { success: false, stepsUsed: 0, reachedHome: false };
     }
     // Starta alltid från början
+    collected.current.clear();
     positionRef.current = { ...level.startPosition };
     goalIndexRef.current = 0;
     setGoalIndex(0);
@@ -188,6 +198,7 @@ export function useGameEngine(level: Level, character: CharacterType) {
     setNextStep(0);
     setGameState((prev) => ({ ...prev, characterPosition: { ...level.startPosition }, collectedCoins: 0 }));
 
+    const version = ++runVersion.current;
     runningRef.current = true;
     setGameState((prev) => ({ ...prev, isRunning: true }));
 
@@ -201,6 +212,7 @@ export function useGameEngine(level: Level, character: CharacterType) {
       setActiveStep(i);
       await new Promise((resolve) => setTimeout(resolve, MOVE_DELAY));
 
+      if (!runningRef.current || version !== runVersion.current) return { success: false, stepsUsed, reachedHome: false };
       const result = moveCharacter(direction);
       stepsUsed++;
 
@@ -229,9 +241,11 @@ export function useGameEngine(level: Level, character: CharacterType) {
     if (code.length === 0) return { success: false, reachedHome: false, done: true, step: 0 };
     const i = nextStep;
     if (i === 0) {
+      collected.current.clear();
       positionRef.current = { ...level.startPosition };
       goalIndexRef.current = 0;
       setGoalIndex(0);
+      setGameState(prev => ({ ...prev, collectedCoins: 0 }));
     }
     setActiveStep(i);
     const result = moveCharacter(code[i]);

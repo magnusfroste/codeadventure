@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { allLevels } from '@/data/levels';
 import { useGameProgress } from '@/hooks/useGameProgress';
@@ -27,6 +27,7 @@ export default function GameLevel() {
   const levelIndex = parseInt(levelId || '1', 10) - 1;
   const level = allLevels[levelIndex];
 
+  const celebrated = useRef(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [failureMessage, setFailureMessage] = useState<string>('');
@@ -38,6 +39,7 @@ export default function GameLevel() {
 
   // Återställ lokala states när nivån ändras
   useEffect(() => {
+    celebrated.current = false;
     setShowCelebration(false);
     setShowFailure(false);
     setFailureMessage('');
@@ -86,6 +88,7 @@ export default function GameLevel() {
       if (soundEnabled) playSound('move');
       const result = await executeMove(direction);
       if (result.reachedHome) {
+        celebrated.current = true;
         const stars = calculateStars(gameState.code.length + 1);
         setEarnedStars(stars);
         completeLevel(level.id, stars);
@@ -151,7 +154,8 @@ export default function GameLevel() {
 
   // Monitor for completion
   useEffect(() => {
-    if (gameState.isComplete && !showCelebration) {
+    if (gameState.isComplete && gameState.currentLevel === level.id && !celebrated.current) {
+      celebrated.current = true;
       const stars = calculateStars(gameState.code.length);
       setEarnedStars(stars);
       completeLevel(level.id, stars);
@@ -164,6 +168,7 @@ export default function GameLevel() {
   const handleReset = useCallback(() => {
     if (soundEnabled) playSound('click');
     resetGame();
+    celebrated.current = false;
     setShowCelebration(false);
     setShowFailure(false);
     setShowHint(false);
@@ -222,16 +227,16 @@ export default function GameLevel() {
   if (!level) return null;
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b from-background to-secondary/20 p-4 md:p-6 ${shaking ? 'animate-shake' : ''}`}>
+    <div className={`min-h-dvh bg-gradient-to-b from-background to-secondary/20 p-4 md:p-6 ${shaking ? 'animate-shake' : ''}`}>
       <Confetti active={showConfetti} />
       
       <div className="max-w-5xl mx-auto space-y-4 md:space-y-3">
-        <div className="flex items-center justify-between">
-          <LevelHeader
+        <div className="flex items-start justify-between gap-2 flex-wrap">
+          <div className="min-w-0 flex-1"><LevelHeader
             level={level}
             earnedStars={getLevelStars(level.id)}
             onBack={() => navigate('/map')}
-          />
+          /></div>
           <div className="flex gap-2">
             {hint && !showHint && (
               <Button
@@ -239,6 +244,7 @@ export default function GameLevel() {
                 variant="outline"
                 size="icon"
                 className="rounded-xl"
+                aria-label="Visa ledtråd"
                 title="Visa ledtråd"
               >
                 <Lightbulb className="w-5 h-5 text-accent" />
@@ -249,6 +255,7 @@ export default function GameLevel() {
               variant="outline"
               size="icon"
               className="rounded-xl"
+              aria-label={soundEnabled ? 'Stäng av ljud' : 'Slå på ljud'}
               title={soundEnabled ? 'Stäng av ljud' : 'Slå på ljud'}
             >
               {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
@@ -265,7 +272,7 @@ export default function GameLevel() {
 
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center justify-center">
           {/* Game Grid */}
-          <div className="flex-shrink-0">
+          <div className="min-w-0 max-w-full md:max-w-[48%]">
             <GameGrid
               grid={level.grid}
               characterPosition={gameState.characterPosition}
@@ -287,7 +294,7 @@ export default function GameLevel() {
           </div>
 
           {/* Controls Panel */}
-          <div className="space-y-6 w-full max-w-md">
+          <div className="space-y-4 w-full min-w-0 max-w-md">
             {/* Code Display */}
             <CodeDisplay
               code={gameState.code}

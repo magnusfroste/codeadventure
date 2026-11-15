@@ -21,7 +21,7 @@ export function ScratchControls({
       {isRunning ? (
         <Button
           onClick={onStop}
-          className="bg-red-500 hover:bg-red-600 text-white text-lg px-6 py-6 rounded-xl touch-target btn-bounce"
+          className="bg-destructive hover:bg-destructive/90 text-destructive-foreground text-lg px-6 py-6 rounded-xl touch-target btn-bounce"
           size="lg"
         >
           <Square className="w-6 h-6 mr-2" />
@@ -31,7 +31,7 @@ export function ScratchControls({
         <Button
           onClick={onRun}
           disabled={!canRun}
-          className="bg-green-500 hover:bg-green-600 text-white text-lg px-6 py-6 rounded-xl touch-target btn-bounce disabled:opacity-50"
+          className="bg-success hover:bg-success/90 text-success-foreground text-lg px-6 py-6 rounded-xl touch-target btn-bounce disabled:opacity-50"
           size="lg"
         >
           <Play className="w-6 h-6 mr-2" />

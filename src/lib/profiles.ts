@@ -53,7 +53,7 @@ export function setActiveProfile(id: string) {
 }
 
 export function createProfile(name: string, character: CharacterType): ChildProfile {
-  const profile: ChildProfile = { id: `p${Date.now()}`, name: name.trim(), character };
+  const profile: ChildProfile = { id: `p${crypto.randomUUID()}`, name: name.trim(), character };
   write([...getProfiles(), profile]);
   setActiveProfile(profile.id);
   return profile;

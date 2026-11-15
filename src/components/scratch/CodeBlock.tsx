@@ -3,6 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useDroppable } from '@dnd-kit/core';
 import { Block, BLOCK_DEFINITIONS, BlockType } from '@/types/scratch';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { X, Plus, Minus, GripVertical } from 'lucide-react';
 
 interface CodeBlockProps {
@@ -49,65 +50,69 @@ export function CodeBlock({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'rounded-xl text-white font-medium relative',
+        'rounded-xl text-primary-foreground font-medium relative',
         'transition-all duration-200',
         'shadow-md',
         def.color,
-        isActive && 'ring-4 ring-yellow-400 scale-105',
+        isActive && 'ring-4 ring-accent scale-105',
         isDragging && 'opacity-50 z-50',
         isDragOverlay && 'shadow-2xl scale-105 rotate-2',
         isNested ? 'px-2 py-1.5 text-sm' : 'px-4 py-3'
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap min-w-0">
         {/* Drag handle */}
-        <div
+        <Button variant="ghost"
           {...attributes}
+          aria-label={`Flytta ${def.label}`}
           {...listeners}
           className="cursor-grab active:cursor-grabbing touch-none"
         >
           <GripVertical className={cn('opacity-60', isNested ? 'w-3 h-3' : 'w-4 h-4')} />
-        </div>
+        </Button>
 
         <span className={isNested ? 'text-base' : 'text-xl'}>{def.emoji}</span>
         <span>{def.label}</span>
 
         {/* Value control for loops */}
         {def.hasValue && onUpdateValue && (
-          <div className="flex items-center gap-1 ml-2 bg-white/20 rounded-lg px-2 py-1">
-            <button
+          <div className="flex items-center flex-wrap gap-1 bg-background/20 rounded-lg px-2 py-1">
+            <Button variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
                 onUpdateValue(Math.max(1, (block.value || 1) - 1));
               }}
-              className="p-0.5 hover:bg-white/20 rounded"
+              aria-label="Färre upprepningar"
+              className="p-0.5 hover:bg-background/20 rounded"
             >
               <Minus className="w-4 h-4" />
-            </button>
+            </Button>
             <span className="w-6 text-center font-bold">{block.value}</span>
-            <button
+            <Button variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
                 onUpdateValue(Math.min(10, (block.value || 1) + 1));
               }}
-              className="p-0.5 hover:bg-white/20 rounded"
+              aria-label="Fler upprepningar"
+              className="p-0.5 hover:bg-background/20 rounded"
             >
               <Plus className="w-4 h-4" />
-            </button>
+            </Button>
             <span className="text-sm ml-1">gånger</span>
           </div>
         )}
 
         {/* Remove button */}
-        <button
+        <Button variant="ghost"
           onClick={(e) => {
             e.stopPropagation();
             onRemove();
           }}
-          className="ml-auto p-1 hover:bg-white/20 rounded-full transition-colors"
+          aria-label={`Ta bort ${def.label}`}
+          className="ml-auto p-1 hover:bg-background/20 rounded-full transition-colors"
         >
           <X className={isNested ? 'w-3 h-3' : 'w-4 h-4'} />
-        </button>
+        </Button>
       </div>
 
       {/* Loop children with drop zone */}
@@ -138,8 +143,8 @@ function LoopDropZone({ loopId, children, onRemoveFromLoop }: LoopDropZoneProps)
     <div
       ref={setNodeRef}
       className={cn(
-        'mt-2 ml-4 pl-2 border-l-4 border-white/30 space-y-1 min-h-[50px] rounded-r-lg transition-all',
-        isOver && 'bg-white/20 border-white/60'
+        'mt-2 ml-4 pl-2 border-l-4 border-foreground/30 space-y-1 min-h-[50px] rounded-r-lg transition-all',
+        isOver && 'bg-background/20 border-foreground/60'
       )}
     >
       {children.length > 0 ? (
@@ -152,8 +157,8 @@ function LoopDropZone({ loopId, children, onRemoveFromLoop }: LoopDropZoneProps)
         ))
       ) : (
         <p className={cn(
-          'text-white/60 text-sm py-3 text-center',
-          isOver && 'text-white font-medium'
+          'text-inherit text-sm py-3 text-center',
+          isOver && 'text-primary-foreground font-medium'
         )}>
           {isOver ? '↓ Släpp här!' : 'Dra block hit...'}
         </p>
@@ -192,31 +197,33 @@ function NestedBlock({ block, onRemove }: NestedBlockProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        'px-2 py-1.5 rounded-lg text-white font-medium text-sm',
-        'flex items-center gap-2 transition-all',
+        'px-2 py-1.5 rounded-lg text-primary-foreground font-medium text-sm',
+        'flex items-center flex-wrap gap-2 transition-all',
         'shadow-sm',
         def.color,
         isDragging && 'opacity-50'
       )}
     >
-      <div
+      <Button variant="ghost"
         {...attributes}
+        aria-label={`Flytta ${def.label}`}
         {...listeners}
         className="cursor-grab active:cursor-grabbing touch-none"
       >
         <GripVertical className="w-3 h-3 opacity-60" />
-      </div>
+      </Button>
       <span className="text-base">{def.emoji}</span>
       <span>{def.label}</span>
-      <button
+      <Button variant="ghost"
         onClick={(e) => {
           e.stopPropagation();
           onRemove();
         }}
-        className="ml-auto p-0.5 hover:bg-white/20 rounded-full transition-colors"
+        aria-label={`Ta bort ${def.label}`}
+        className="ml-auto p-0.5 hover:bg-background/20 rounded-full transition-colors"
       >
         <X className="w-3 h-3" />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -228,7 +235,7 @@ export function DragOverlayBlock({ block }: { block: Block }) {
   return (
     <div
       className={cn(
-        'px-4 py-3 rounded-xl text-white font-medium',
+        'px-4 py-3 rounded-xl text-primary-foreground font-medium',
         'shadow-2xl scale-105 rotate-2',
         'flex items-center gap-2',
         def.color
@@ -248,7 +255,7 @@ export function NewBlockOverlay({ type }: { type: BlockType }) {
   return (
     <div
       className={cn(
-        'px-4 py-3 rounded-xl text-white font-medium',
+        'px-4 py-3 rounded-xl text-primary-foreground font-medium',
         'shadow-2xl scale-110',
         'flex items-center gap-2',
         def.color
@@ -256,7 +263,7 @@ export function NewBlockOverlay({ type }: { type: BlockType }) {
     >
       <span className="text-xl">{def.emoji}</span>
       <span>{def.label}</span>
-      <span className="text-xs bg-white/30 px-2 py-0.5 rounded ml-2">+ Ny</span>
+      <span className="text-xs bg-background/30 px-2 py-0.5 rounded ml-2">+ Ny</span>
     </div>
   );
 }

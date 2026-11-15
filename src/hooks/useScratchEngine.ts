@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Block, BlockType, BLOCK_DEFINITIONS } from '@/types/scratch';
 import { CharacterType } from '@/types/game';
 
@@ -27,6 +27,8 @@ export function useScratchEngine(character: CharacterType, onSound?: SoundCallba
   const [isRunning, setIsRunning] = useState(false);
   const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
   const runningRef = useRef(false);
+  const runVersion = useRef(0);
+  useEffect(() => () => { runningRef.current = false; runVersion.current += 1; }, []);
   const soundCallbackRef = useRef(onSound);
   soundCallbackRef.current = onSound;
 
@@ -114,9 +116,11 @@ export function useScratchEngine(character: CharacterType, onSound?: SoundCallba
     async (block: Block): Promise<boolean> => {
       if (!runningRef.current) return false;
 
+      const version = runVersion.current;
       setActiveBlockId(block.id);
       await new Promise((r) => setTimeout(r, ANIMATION_DELAY / 2));
 
+      if (!runningRef.current || version !== runVersion.current) return false;
       switch (block.type) {
         case 'start':
           playSound('start');
@@ -194,6 +198,7 @@ export function useScratchEngine(character: CharacterType, onSound?: SoundCallba
       return { success: false, error: 'Programmet måste börja med START!' };
     }
 
+    runVersion.current += 1;
     runningRef.current = true;
     setIsRunning(true);
     resetStage();
@@ -218,6 +223,7 @@ export function useScratchEngine(character: CharacterType, onSound?: SoundCallba
   }, [blocks, executeBlock, resetStage]);
 
   const stopProgram = useCallback(() => {
+    runVersion.current += 1;
     runningRef.current = false;
     setIsRunning(false);
     setActiveBlockId(null);

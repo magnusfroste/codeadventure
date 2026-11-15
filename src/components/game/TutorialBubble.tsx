@@ -80,16 +80,17 @@ export function TutorialBubble({ levelId, mode, character }: TutorialBubbleProps
   if (!tutorial) return null;
 
   return (
-    <div className="relative bg-card border-2 border-primary/40 rounded-2xl p-4 shadow-lg animate-bounce-in max-w-sm mx-auto">
+    <div className="relative bg-card border-2 border-primary/40 rounded-2xl p-4 shadow-lg animate-fade-in max-w-sm mx-auto">
       <Button
         variant="ghost"
         size="icon"
+        aria-label="Stäng hjälpen"
         className="absolute top-1 right-1 w-8 h-8 rounded-full"
         onClick={handleDismiss}
       >
         <X className="w-4 h-4" />
       </Button>
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 pr-8">
         <span className="text-4xl flex-shrink-0">{CHARACTER_EMOJIS[character]}</span>
         <div>
           <p className="font-bold text-foreground">{tutorial.title}</p>

@@ -16,9 +16,9 @@ const modeLabels = {
 };
 
 const modeColors = {
-  guided: 'bg-success/20 text-success',
+  guided: 'bg-success text-success-foreground',
   plan: 'bg-primary/20 text-primary',
-  master: 'bg-accent/20 text-accent',
+  master: 'bg-accent/20 text-accent-foreground',
 };
 
 export function LevelHeader({ level, earnedStars, onBack }: LevelHeaderProps) {
@@ -34,12 +34,12 @@ export function LevelHeader({ level, earnedStars, onBack }: LevelHeaderProps) {
         Tillbaka
       </Button>
 
-      <div className="flex flex-col items-center">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col items-center min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className={cn('px-3 py-1 rounded-full text-sm font-medium', modeColors[level.mode])}>
             {modeLabels[level.mode]}
           </span>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">
             Nivå {level.id}: {level.name}
           </h1>
         </div>

@@ -22,7 +22,7 @@ const Index = () => {
   const [editMode, setEditMode] = useState(false);
 
   const handleStart = () => {
-    createProfile(name || `Spelare ${profiles.length + 1}`, selectedCharacter as CharacterType);
+    createProfile(name.trim() || `Spelare ${profiles.length + 1}`, selectedCharacter as CharacterType);
     navigate('/map');
   };
 
@@ -40,7 +40,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/20 via-background to-secondary/20 flex flex-col items-center justify-center p-6 overflow-hidden">
+    <div className="min-h-dvh bg-gradient-to-b from-primary/20 via-background to-secondary/20 flex flex-col items-center justify-center p-6 overflow-hidden">
       {/* Floating decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <Star className="absolute top-[10%] left-[15%] w-8 h-8 text-accent animate-float opacity-60" style={{ animationDelay: '0s' }} />
@@ -53,7 +53,7 @@ const Index = () => {
       <div className="relative z-10 max-w-md w-full text-center space-y-8">
         {/* Title */}
         <div className="space-y-2 animate-bounce-in">
-          <h1 className="text-5xl md:text-6xl font-bold text-primary drop-shadow-lg">
+          <h1 className="text-4xl md:text-6xl font-bold text-primary drop-shadow-lg">
             Kodäventyret
           </h1>
           <p className="text-xl text-muted-foreground">
@@ -180,12 +180,12 @@ const Index = () => {
             href="https://github.com/magnusfroste" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+            className="inline-flex min-h-11 items-center gap-1 hover:text-foreground transition-colors"
           >
             <Github className="w-3 h-3" />
             github.com/magnusfroste
           </a>
-          <p className="mt-1 opacity-70">Open Source 💚</p>
+          <p className="mt-1 ">Öppen källkod 💚</p>
         </footer>
       </div>
     </div>

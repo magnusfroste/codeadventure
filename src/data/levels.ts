@@ -137,7 +137,7 @@ export const level6: Level = {
   maxStars: 3,
   unlocked: false,
   completed: false,
-  optimalMoves: 7,
+  optimalMoves: 8,
 };
 
 // Level 7-8: Plan mode (5x5)
