@@ -3,4 +3,3 @@
 - Use random UUIDs for local profile IDs so quickly created children never share progress keys.
 - Store dismissed game instructions per active local profile so one child's learning does not hide help from another.
 - Keep one main landmark around the routed content and a 44px minimum interactive target across the app.
-- Disable the tagger's JSX source injection on React 18 because it assigns unsupported refs to function components; retain its Tailwind integration.

@@ -8,7 +8,7 @@ Appen är gjord för yngre elever, föräldrar och lärare som vill introducera 
 
 ## Länkar
 
-- [Kodäventyret](https://codekids.skolappar.com/): Startsida och val av hjälte.
-- [Äventyrskartan](https://codekids.skolappar.com/map): Alla nivåer.
-- [Blockeditorn](https://codekids.skolappar.com/scratch): Fri kodning med block.
+- [Kodäventyret](https://kodaventyret.skolappar.com/): Startsida och val av hjälte.
+- [Äventyrskartan](https://kodaventyret.skolappar.com/map): Alla nivåer.
+- [Blockeditorn](https://kodaventyret.skolappar.com/scratch): Fri kodning med block.
 - [Skolappar](https://www.skolappar.com): Fler gratis skolappar.
