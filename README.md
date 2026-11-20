@@ -1,60 +1,82 @@
-# Code Adventure 💻
+# Kodäventyret
 
-A coding adventure game where you learn programming through play! Choose your character, explore an adventure map, and solve coding challenges in a Scratch-like visual editor.
+Ett kodspel för de yngsta, ungefär 4–8 år. Barnet väljer en hjälte, går runt på en
+äventyrskarta och styr hjälten hem med pilar – först steg för steg, sedan genom att planera
+hela koden innan den körs. Det finns också en blockeditor i Scratch-stil.
 
-**Published on [skolappar.com](https://www.skolappar.com) - Democratizing learning apps, built by vibe-coding parents who love helping their kids learn!**
+**Spela:** https://kodaventyret.skolappar.com · En del av [Skolappar](https://www.skolappar.com) – pedagogiska appar av föräldrar · öppen källkod (MIT)
 
-## Features
+Började som ett Lovable-projekt och körs nu fristående.
 
-- **Character Selection**: Choose your hero (Mouse, Princess, Car, Cat, Robot)
-- **Adventure Map**: Explore a world of coding challenges
-- **Visual Coding**: Scratch-like drag-and-drop editor
-- **Game Levels**: Progressive difficulty with fun challenges
-- **Interactive Learning**: Learn programming concepts through play
-- **Responsive Design**: Works on desktop and mobile
+## Vad du kan göra
 
-## Getting Started
+- **Profiler per barn**: flera barn kan dela samma enhet, var och en med namn, hjälte och
+  egen progress. Ingen inloggning.
+- **Fem hjältar**: mus, prinsessa, bil, katt och robot.
+- **Äventyrskarta med 18 banor** i tre lägen:
+  - *Guidad* – tryck på pilarna, hjälten går direkt.
+  - *Planera* – skriv hela pilkoden först, tryck sedan KÖR.
+  - *Mästare* – samla mynt och undvik vatten på vägen hem.
+- **Varierade uppdrag**: hämta saker i rätt ordning, välj kortaste vägen, laga kod som saknar
+  en pil, har fel pil eller en pil för mycket, och gissa var roboten hamnar.
+- **Stjärnor**: upp till tre per bana beroende på hur få steg du använder. Nya banor låses upp
+  när du klarar de tidigare.
+- **Blockprogrammering**: dra block (START, STOPP, gå upp/ner/vänster/höger, hoppa, upprepa)
+  och lägg block inuti en loop.
+- Instruktionsbubblor, firande med konfetti och ljudeffekter som kan stängas av.
 
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
-
-### Installation
+## Kom igång
 
 ```bash
 npm install
+npm run dev        # utvecklingsserver
+npm run build      # produktionsbygge till dist/
+npm run build:dev  # bygge i utvecklingsläge
+npm run preview    # förhandsgranska bygget
+npm run lint       # eslint
 ```
 
-### Run Locally
+Docker-bygget använder Node 22.
+
+## Docker
 
 ```bash
-npm run dev
+docker build -t kodaventyret .
+docker run --rm -p 8080:8080 kodaventyret
 ```
 
-### Build for Production
+Servern ligger bakom nginx med `deploy/nginx.conf`.
 
-```bash
-npm run build
+## Integritet
+
+- Ingen spårning, inga kakor, ingen analys, inget konto, ingen AI, inga nätverksanrop.
+- Typsnittet Fredoka ligger i appen (`public/fonts/`). Ljuden skapas i webbläsaren med
+  Web Audio – inga ljudfiler hämtas.
+- Allt sparas lokalt i `localStorage`:
+  - `kodaventyret-profiles` och `kodaventyret-active-profile` – barnens profiler (namn och hjälte)
+  - `kodaventyret-progress-<id>` – stjärnor och upplåsta banor per profil
+  - `kodaventyret-tutorials-seen-<id>` – vilka instruktioner som redan visats
+
+  Rensa webbläsardata så är det borta.
+
+## Struktur
+
+```
+src/
+  pages/Index.tsx           startsida: välj eller skapa profil och hjälte
+  pages/AdventureMap.tsx    äventyrskartan med alla banor
+  pages/GameLevel.tsx       en bana: rutnät, pilar, kod, kör
+  pages/ScratchEditor.tsx   blockprogrammering
+  components/game/          rutnät, pilknappar, kodvisning, modaler, instruktioner
+  components/scratch/       blockpalett, arbetsyta och scen
+  data/levels.ts            de 18 banorna
+  hooks/useGameEngine.ts    spelmotor och stjärnor
+  hooks/useScratchEngine.ts kör blockprogram
+  hooks/useGameProgress.ts  progress i localStorage
+  lib/profiles.ts           lokala barnprofiler
+deploy/nginx.conf           nginx-konfiguration för Docker
 ```
 
-## How to Play
+## Licens
 
-1. Choose your character from the selection screen
-2. Start your adventure on the map
-3. Navigate to different levels
-4. Solve coding challenges using the visual editor
-5. Progress through increasingly difficult levels
-6. Learn programming concepts while having fun!
-
-## Tech Stack
-
-- **React 19** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool
-- **shadcn/ui** - Components
-- **Tailwind CSS** - Styling
-
-## License
-
-MIT
+MIT – se [LICENSE](LICENSE).
