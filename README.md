@@ -6,6 +6,8 @@ hela koden innan den körs. Det finns också en blockeditor i Scratch-stil.
 
 **Spela:** https://kodaventyret.skolappar.com · En del av [Skolappar](https://www.skolappar.com) – pedagogiska appar av föräldrar · öppen källkod (MIT)
 
+![Kodäventyret](public/kort.png)
+
 Började som ett Lovable-projekt och körs nu fristående.
 
 ## Vad du kan göra
