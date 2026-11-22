@@ -8,7 +8,7 @@ hela koden innan den körs. Det finns också en blockeditor i Scratch-stil.
 
 ![Kodäventyret](public/kort.png)
 
-Började som ett Lovable-projekt och körs nu fristående.
+Körs fristående.
 
 ## Vad du kan göra
 
