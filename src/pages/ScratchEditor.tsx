@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { toast } from 'sonner';
 import { Block, BlockType, BLOCK_DEFINITIONS } from '@/types/scratch';
+import { report } from '@/lib/skolappar';
 
 export default function ScratchEditor() {
   const navigate = useNavigate();
@@ -220,7 +221,7 @@ export default function ScratchEditor() {
 
             <div className="flex items-center gap-2">
               <Button
-                onClick={() => setSoundEnabled(!soundEnabled)}
+                onClick={() => { if (soundEnabled) report('sound_off'); setSoundEnabled(!soundEnabled); }}
                 variant="outline"
                 size="icon"
                 className="rounded-xl"
