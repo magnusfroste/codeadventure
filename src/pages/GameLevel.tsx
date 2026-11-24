@@ -17,6 +17,7 @@ import { Confetti } from '@/components/game/Confetti';
 import { Direction } from '@/types/game';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX, Lightbulb, Undo2, Footprints } from 'lucide-react';
+import { report } from '@/lib/skolappar';
 
 export default function GameLevel() {
   const { levelId } = useParams();
@@ -47,6 +48,10 @@ export default function GameLevel() {
     setShowHint(false);
     setShaking(false);
     setShowConfetti(false);
+    if (level) {
+      report('round_start');
+      report('level', level.id);
+    }
   }, [levelId]);
 
   const {
@@ -91,6 +96,7 @@ export default function GameLevel() {
         celebrated.current = true;
         const stars = calculateStars(gameState.code.length + 1);
         setEarnedStars(stars);
+        report('round_done', Math.round((stars / 3) * 100));
         completeLevel(level.id, stars);
         if (soundEnabled) playSound('celebrate');
         triggerConfetti();
@@ -99,6 +105,7 @@ export default function GameLevel() {
         if (soundEnabled) playSound('error');
         triggerShake();
         setFailureMessage('Oj! Där kan du inte gå. Prova en annan väg! 🤔');
+        report('hint');
         setShowFailure(true);
       }
     },
@@ -133,6 +140,7 @@ export default function GameLevel() {
     } else {
       setFailureMessage('Koden tog slut innan hemmet. Lägg till fler pilar! ➕');
     }
+    report('hint');
     setShowFailure(true);
   }, [runCode, goals.length, soundEnabled, playSound, triggerShake]);
 
@@ -149,6 +157,7 @@ export default function GameLevel() {
         ? 'Koden tog slut! Kom ihåg att hämta allt i uppdraget först. 🧺'
         : 'Koden tog slut innan hemmet. Lägg till fler pilar! ➕');
     }
+    report('hint');
     setShowFailure(true);
   }, [stepCode, goals.length, soundEnabled, playSound, triggerShake]);
 
@@ -158,6 +167,7 @@ export default function GameLevel() {
       celebrated.current = true;
       const stars = calculateStars(gameState.code.length);
       setEarnedStars(stars);
+      report('round_done', Math.round((stars / 3) * 100));
       completeLevel(level.id, stars);
       if (soundEnabled) playSound('celebrate');
       triggerConfetti();
@@ -172,11 +182,14 @@ export default function GameLevel() {
     setShowCelebration(false);
     setShowFailure(false);
     setShowHint(false);
-  }, [resetGame, soundEnabled, playSound]);
+    report('round_start');
+    report('level', level.id);
+  }, [resetGame, soundEnabled, playSound, level?.id]);
 
   const handleShowHint = useCallback(() => {
     if (soundEnabled) playSound('click');
     setShowHint(true);
+    report('hint');
   }, [soundEnabled, playSound]);
 
   const hint = level ? getHint(level) : null;
@@ -251,7 +264,7 @@ export default function GameLevel() {
               </Button>
             )}
             <Button
-              onClick={() => setSoundEnabled(!soundEnabled)}
+              onClick={() => { if (soundEnabled) report('sound_off'); setSoundEnabled(!soundEnabled); }}
               variant="outline"
               size="icon"
               className="rounded-xl"
