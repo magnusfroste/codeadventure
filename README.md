@@ -4,7 +4,7 @@ Ett kodspel för de yngsta, ungefär 4–8 år. Barnet väljer en hjälte, går 
 äventyrskarta och styr hjälten hem med pilar – först steg för steg, sedan genom att planera
 hela koden innan den körs. Det finns också en blockeditor i Scratch-stil.
 
-**Spela:** https://kodaventyret.skolappar.com · En del av [Skolappar](https://www.skolappar.com) – pedagogiska appar av föräldrar · öppen källkod (MIT)
+**Spela:** https://kodaventyret.skolappar.org · En del av [Skolappar](https://www.skolappar.org) – pedagogiska appar av föräldrar · öppen källkod (MIT)
 
 ![Kodäventyret](public/kort.png)
 

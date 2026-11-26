@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://codeadventure.skolappar.com/sitemap.xml
+Sitemap: https://codeadventure.skolappar.org/sitemap.xml
